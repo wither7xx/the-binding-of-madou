@@ -1,0 +1,12 @@
+<players root="gfx/characters/costumes/" 
+         portraitroot="gfx/ui/stage/" 
+         nameimageroot="gfx/ui/boss/">
+	<player name="Arle Nadja" skin="arle.png" hp="6" bombs="0"
+          nameimage="playername_arle.png" 
+          portrait="playerportrait_arle.png" skinColor="-1"
+		  birthright="Flash shoot exam" />
+	<player name="Tainted Arle" skin="arle.png" hp="6" bombs="0"
+          nameimage="playername_arle.png" bSkinParent="Arle Nadja" 
+          portrait="playerportrait_arle.png" skinColor="-1"
+		  birthright="WIP" />
+</players>

@@ -1,0 +1,56 @@
+<entities anm2root="gfx/" version="5">
+	<entity name="Light Orb" id="3" variant="2400" anm2path="tbom/familiar/familiar_light_orb.anm2" baseHP="0" boss="0" champion="0" collisionDamage="0" collisionInterval="2" collisionMass="3" collisionRadius="25" friction="1" numGridCollisionPoints="12" shadowSize="14" stageHP="0" />
+
+	<entity anm2path="items/pick ups/mana.anm2" baseHP="0" boss="0" id="5" variant="2400" subtype="0" champion="0" collisionDamage="0" collisionMass="3" collisionRadius="12" friction="1" name="Mana" numGridCollisionPoints="24" shadowSize="14" stageHP="0">
+		<gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0" />
+	</entity>
+	<entity anm2path="items/pick ups/gel_green.anm2" baseHP="0" boss="0" id="5" variant="2401" subtype="0" champion="0" collisionDamage="0" collisionMass="3" collisionRadius="6" friction="1" name="Green Gel" numGridCollisionPoints="12" shadowSize="7" stageHP="0">
+		<gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0" />
+	</entity>
+	<entity anm2path="items/pick ups/gel_purple.anm2" baseHP="0" boss="0" id="5" variant="2401" subtype="1" champion="0" collisionDamage="0" collisionMass="3" collisionRadius="6" friction="1" name="Purple Gel" numGridCollisionPoints="12" shadowSize="7" stageHP="0">
+		<gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0" />
+	</entity>
+	<entity anm2path="items/pick ups/gel_red.anm2" baseHP="0" boss="0" id="5" variant="2401" subtype="2" champion="0" collisionDamage="0" collisionMass="3" collisionRadius="6" friction="1" name="Red Gel" numGridCollisionPoints="12" shadowSize="7" stageHP="0">
+		<gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0" />
+	</entity>
+	<entity anm2path="items/pick ups/gel_yellow.anm2" baseHP="0" boss="0" id="5" variant="2401" subtype="3" champion="0" collisionDamage="0" collisionMass="3" collisionRadius="6" friction="1" name="Yellow Gel" numGridCollisionPoints="12" shadowSize="7" stageHP="0">
+		<gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0" />
+	</entity>
+	<entity anm2path="items/pick ups/gel_blue.anm2" baseHP="0" boss="0" id="5" variant="2401" subtype="4" champion="0" collisionDamage="0" collisionMass="3" collisionRadius="6" friction="1" name="Blue Gel" numGridCollisionPoints="12" shadowSize="7" stageHP="0">
+		<gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0" />
+	</entity>
+
+	<entity anm2path="tbom/puyo_green.anm2" baseHP="10" boss="0" champion="0" collisionDamage="1" collisionMass="5" collisionRadius="13" friction="1" id="305" variant="240" name="Green Puyo" numGridCollisionPoints="12" shadowSize="20" stageHP="5" portrait="154">
+		<bestiary transform="0,0,1" anim="Hop" />
+		<gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0" />
+	</entity>
+	<entity anm2path="tbom/puyo_purple.anm2" baseHP="10" boss="0" champion="0" collisionDamage="1" collisionMass="5" collisionRadius="13" friction="1" id="305" variant="241" name="Purple Puyo" numGridCollisionPoints="12" shadowSize="20" stageHP="5" portrait="154">
+		<bestiary transform="0,0,1" anim="Hop" />
+		<gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0" />
+	</entity>
+	<entity anm2path="tbom/puyo_red.anm2" baseHP="10" boss="0" champion="0" collisionDamage="1" collisionMass="5" collisionRadius="13" friction="1" id="305" variant="242" name="Red Puyo" numGridCollisionPoints="12" shadowSize="20" stageHP="5" portrait="154">
+		<bestiary transform="0,0,1" anim="Hop" />
+		<gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0" />
+	</entity>
+	<entity anm2path="tbom/puyo_yellow.anm2" baseHP="10" boss="0" champion="0" collisionDamage="1" collisionMass="5" collisionRadius="13" friction="1" id="305" variant="243" name="Yellow Puyo" numGridCollisionPoints="12" shadowSize="20" stageHP="5" portrait="154">
+		<bestiary transform="0,0,1" anim="Hop" />
+		<gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0" />
+	</entity>
+	<entity anm2path="tbom/puyo_blue.anm2" baseHP="10" boss="0" champion="0" collisionDamage="1" collisionMass="5" collisionRadius="13" friction="1" id="305" variant="244" name="Blue Puyo" numGridCollisionPoints="12" shadowSize="20" stageHP="5" portrait="154">
+		<bestiary transform="0,0,1" anim="Hop_floating" />
+		<gibs amount="0" blood="0" bone="0" eye="0" gut="0" large="0" />
+	</entity>
+
+
+	<entity anm2path="1000.179_enemy soul.anm2" baseHP="0" boss="0" champion="0" collisionDamage="0" collisionMass="0" collisionRadius="0" friction="1" id="1000" variant="2400" name="EXP" numGridCollisionPoints="0" shadowSize="0" stageHP="0" />
+	<entity anm2path="spotlight.anm2" baseHP="0" boss="0" champion="0" collisionDamage="0" collisionMass="0" collisionRadius="0" friction="1" id="1000" variant="2401" name="Laser Sight" numGridCollisionPoints="0" shadowSize="0" stageHP="0" />
+	<entity anm2path="tbom/lockon_mark.anm2" baseHP="0" boss="0" champion="0" collisionDamage="0" collisionMass="0" collisionRadius="0" friction="1" id="1000" variant="2402" name="Lock-on Mark" numGridCollisionPoints="0" shadowSize="0" stageHP="0" />
+	<entity anm2path="tbom/magic_circle.anm2" baseHP="0" boss="0" champion="0" collisionDamage="0" collisionMass="0" collisionRadius="0" friction="1" id="1000" variant="2403" name="Magic Circle" numGridCollisionPoints="0" shadowSize="0" stageHP="0" />
+	<entity anm2path="tbom/charge_laser_sight.anm2" baseHP="0" boss="0" champion="0" collisionDamage="0" collisionMass="0" collisionRadius="0" friction="1" id="1000" variant="2404" name="Charge Laser Sight" numGridCollisionPoints="0" shadowSize="0" stageHP="0" />
+	<entity baseHP="0" boss="0" champion="0" collisionDamage="0" collisionMass="0" collisionRadius="0" friction="1" id="1000" variant="2405" name="Puyo Fire Point" numGridCollisionPoints="0" shadowSize="0" stageHP="0" />
+	<entity anm2path="tbom/puyo_gibs.anm2" baseHP="0" boss="0" champion="0" collisionDamage="0" collisionMass="0" collisionRadius="0" friction="1" id="1000" variant="2406" name="Puyo Gibs" numGridCollisionPoints="0" shadowSize="0" stageHP="0" />
+	<entity baseHP="0" boss="0" champion="0" collisionDamage="0" collisionMass="0" collisionRadius="0" friction="1" id="1000" variant="2407" name="ET Checkpoint" numGridCollisionPoints="0" shadowSize="0" stageHP="0" />
+	<entity anm2path="tbom/et_spaceship.anm2" baseHP="0" boss="0" champion="0" collisionDamage="0" collisionMass="0" collisionRadius="0" friction="1" id="1000" variant="2408" name="ET Spaceship" numGridCollisionPoints="0" shadowSize="0" stageHP="0" />
+
+	<entity baseHP="0" boss="0" champion="0" collisionDamage="0" collisionMass="0" collisionRadius="0" friction="1" id="1000" variant="2500" name="Blank Animation" numGridCollisionPoints="0" shadowSize="0" stageHP="0" />
+</entities>

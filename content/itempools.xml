@@ -1,0 +1,45 @@
+<!--
+<ItemPools>
+	<Pool Name="treasure">
+		<Item Name="xxxxxx"  Weight="1" DecreaseBy="1" RemoveOn="0.1"/>
+	</Pool>
+</ItemPools>
+treasure shop boss devil angel secret library goldenChest redChest beggar demonBeggar curse keyMaster batteryBum momsChest
+greedTreasure greedBoss greedShop greedDevil greedAngel greedCurse greedSecret
+craneGame ultraSecret bombBum planetarium oldChest babyShop woodenChest rottenBeggar
+-->
+
+<ItemPools>
+	<Pool Name="treasure">
+		<Item Name="Blue Grimoire"  Weight="1" DecreaseBy="1" RemoveOn="0.1"/>
+		<Item Name="Puyo Hat"  Weight="1" DecreaseBy="1" RemoveOn="0.1"/>
+		<Item Name="Wormhole Apple"  Weight="1" DecreaseBy="1" RemoveOn="0.1"/>
+	</Pool>
+	<Pool Name="shop">
+		<Item Name="Puyo Hat"  Weight="0.5" DecreaseBy="0.5" RemoveOn="0.05"/>
+	</Pool>
+	<Pool Name="angel">
+		<Item Name="Heart Shaped Cookie"  Weight="1" DecreaseBy="1" RemoveOn="0.1"/>
+	</Pool>
+	<Pool Name="library">
+		<Item Name="Blue Grimoire"  Weight="1" DecreaseBy="0.1" RemoveOn="0.1"/>
+	</Pool>
+	<Pool Name="goldenChest">
+		<Item Name="Puyo Hat"  Weight="0.5" DecreaseBy="0.5" RemoveOn="0.05"/>
+	</Pool>
+	<Pool Name="greedTreasure">
+		<Item Name="Blue Grimoire"  Weight="0.5" DecreaseBy="0.5" RemoveOn="0.05"/>
+		<Item Name="Puyo Hat"  Weight="1" DecreaseBy="1" RemoveOn="0.1"/>
+		<Item Name="Wormhole Apple"  Weight="1" DecreaseBy="1" RemoveOn="0.1"/>
+	</Pool>
+	<Pool Name="greedAngel">
+		<Item Name="Heart Shaped Cookie"  Weight="1" DecreaseBy="1" RemoveOn="0.1"/>
+	</Pool>
+	<Pool Name="craneGame">
+		<Item Name="Puyo Hat"  Weight="1" DecreaseBy="1" RemoveOn="0.1"/>
+		<Item Name="Wormhole Apple"  Weight="1" DecreaseBy="1" RemoveOn="0.1"/>
+	</Pool>
+	<Pool Name="ultraSecret">
+		<Item Name="Puyo Hat"  Weight="1" DecreaseBy="1" RemoveOn="0.1"/>
+	</Pool>
+</ItemPools>

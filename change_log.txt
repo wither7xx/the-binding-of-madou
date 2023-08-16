@@ -1,0 +1,118 @@
+◇2023/4/3  Alpha v0.0.0
+完成了第一个内测版，仅包含一个新角色和两个新道具。
+
+◇2023/4/8  Alpha v0.0.1
+新增内容：现已支持英文EID。
+角色【阿露露】修复：修复了击败妈腿时恰好升到15级的情况下未能第一时间开启Boss Rush的错误。
+角色【阿露露】修复：修复了击败妈腿时获得的经验值数目异常的bug。
+法术【火炎术】增强：现在达到3级即可免疫爆炸伤害。
+法术【气爆弹】改动：效果由直接引爆改为召唤导弹；爆炸现在造成2000%角色伤害，但会伤到角色；解锁该法术后，如果持有【史诗胎儿博士】，则可免疫所有爆炸伤害。
+杂项修复：修正了个别法术的介绍文本。
+
+◇2023/4/11  Alpha v0.0.2
+新增内容：加入了存档功能。
+道具【蓝色魔导书】改动：现在使用攻击性法术时和拾取魔导力时，角色将会短暂闪烁一次。
+法术【二阶强化术】改动：现在光球消失时会显示动画。
+法术【二阶强化术】修复：修复了在拥有光球的情况下重开后光球不消失的bug。
+法术【气爆弹】改动：现在会优先锁定离角色近的目标。
+
+◇2023/4/14  Alpha v0.0.3
+角色【阿露露】修复：修复了在满足等级条件时，凹凸层的入口未能正常生成的错误。
+道具【蓝色魔导书】修复：阿露露清理房间后不再自动回复魔导力，其他角色不受影响。
+道具【蓝色魔导书】修复：修复了其他角色在同一房间内多次使用法术时造成的属性加成混乱之bug。
+道具【蓝色魔导书】修复：金硬币不再被转化为魔导力。
+道具【蓝色魔导书】改动：现已兼容【虚空】：被虚空吞噬后将取消魔导力机制，改为通过消耗虚空本身的充能来使用法术。
+道具【蓝色魔导书】改动：现在使用攻击性法术时，角色脚下会出现一个法阵。
+道具【蓝色魔导书】改动：优化了按键操作：对于攻击性法术、特殊法术和瞄准-锁定型法术，现在按下数字键时可一键使用或取消使用。
+道具【绿色魔导书】改动：困难模式下掉率改为1/180。
+法术【火炎术】改动：现在泪弹颜色与普通泪弹略有不同。
+法术【气爆弹】修复：修复了一个使未被光束瞄准的敌怪也被锁定的错误。
+法术【气爆弹】增强：与【二阶强化术】搭配使用时，现在可免疫爆炸伤害。
+
+◇2023/4/20  Beta v0.1.0
+“新手魔导师勇闯地下室。”
+"An adventure in basement of a developing magician."
+完成了第一个公测版，现已上架创意工坊。
+新增内容：加入了新挑战【唤星秘术】。
+道具【蓝色魔导书】修复：修复了由于浮点数精度问题导致的魔导力刚好达到需求下限但对应法术被禁用的bug。
+法术【二阶强化术】改动：与【美德之书】搭配使用时，现在改为生成一个灰色普通魂火。
+法术【繁花乱象】改动：与【美德之书】搭配使用时，现在改为生成一个有几率发射标记泪弹的魂火。
+法术【气爆弹】削弱：【二阶强化术】不再增加导弹的爆炸伤害。
+杂项修复：修正了个别法术的介绍文本。
+
+
+
+◇2023/6/3  Beta v0.1.1
+
+代码全面重写。
+All code has been rewritten.
+
+新增内容：现已支持本地多人模式和手柄操作。
+New content: Now the mod supports local co-op mode and controller.
+
+新增内容：加入了控制台指令“tbom_debug”。该指令可被简写为“tdb”。
+New content: Added a debug console command named "tbom_debug", which can be abbreviated as "tdb".
+
+道具【蓝色魔导书】修复：修复了使用攻击性法术期间，角色持有的刀剑类武器不停闪烁的bug。
+Fixes for Blue Grimoire: Fixed an issue that will cause the knife weapon of the player to flash continuously.
+
+道具【蓝色魔导书】修复：修复了使用攻击性法术期间，角色脚下的法阵未能如预期正确渲染的bug。
+Fixes for Blue Grimoire: Fixed an issue that the magic circle won't be rendered correctly as expected.
+
+道具【蓝色魔导书】改动：将该道具在宝箱房道具池中的权重修改为1。
+Changes on Blue Grimoire: The weight of the item in Treasure Room pool is modified to 1.
+
+道具【蓝色魔导书】改动：将该道具以0.5的权重加入了贪婪宝箱房。
+Changes on Blue Grimoire: Added the item to Greed Treasure Room pool with a weight of 0.5.
+
+道具【蓝色魔导书】改动：魔导力图标不再遮挡EID的文字和个别角色的附加物品栏。
+Changes on Blue Grimoire: The icon of mp won't block the text of EID and the additional inventory of some characters.
+
+道具【蓝色魔导书】改动：恢复中的法术现在会在HUD上显示冷却时间。
+Changes on Blue Grimoire: Now the recharging time of spells will be displayed on the HUD.
+
+道具【蓝色魔导书】改动：优化了按键操作：现在在使用法术期间亦可直接切换法术。
+Changes on Blue Grimoire: Improved the key operation: Now the player can switch among the spells directly, even when the player is using current spell.
+
+道具【蓝色魔导书】改动：角色持有卡片/药丸时，现在会暂时隐藏法术图标。
+Changes on Blue Grimoire: Now the icon of spells will be temporarily hidden while the player is holding cards or pills.
+
+道具【蓝色魔导书】改动：个别角色在触发法术时，HUD现在会显示不同于常规的名称。
+Changes on Blue Grimoire: Now the HUD will display the name of spell that is different from regular names when trigger a spell as some characters.
+
+道具【蓝色魔导书】改动：将常规角色的初始魔导力上限修改为15。
+Changes on Blue Grimoire: The starting mp cap of regular characters is modified to 15.
+
+道具【绿色魔导书】改动：多人模式下，可解锁相关法术的角色越多，该道具的掉率越高。
+Changes on Green Grimoire: In co-op mode, the chance to drop the item will be increased if there are more characters who can unlock related spells.
+
+法术【治疗术】改动：多人模式下，该法术还将为其他所有角色治疗1颗红心。
+Changes on Healing: In co-op mode, this spell will heal all other co-op players for one red heart.
+
+法术【繁花乱象】改动：与【二阶强化术】搭配使用时，由堕化全部敌怪改为有几率堕化敌怪。该几率会随着光球数量的增多而提高。
+Changes on Bayoen: Changed from tainting all enemies to having a chance to taint them when used with Diacute. The chance will be increased if the player has more light orbs.
+
+法术【荆棘障壁】改动：全屏伤害的数值改为（30+5*角色伤害）。
+Changes on Revia: Changed the damage of the spell to 30 + 5 * player's Damage.
+
+法术【荆棘障壁】修复：修复了全屏伤害效果有时未能如预期正确触发的bug。
+Fixes for Revia: Fixed an issue that the damage effect of the spell won't be triggered correctly as expected.
+
+杂项改动：多人模式下，角色处于死亡状态时无法获得经验值。
+Misc changes: In co-op mode, the player won't be granted exp points after death.
+
+杂项改动：多人模式下，各个角色的魔导力和经验值不共享。
+Misc changes: In co-op mode, each player's mp and exp won't be shared.
+
+杂项修复：修复了达到15级时触发Boss Rush后房门不会自动关闭的错误。
+Misc fixes: Fixed an error that the door of Boss Rush Room won't close after triggering the ambush when the player reaches Lv.15.
+
+MOD兼容：现已兼容Mod Config Menu：玩家可在配置菜单中修改角色的按键设置。
+Mod compatibility: Now has compatibility with Mod Config Menu: You can modify the key config of players in the config menu.
+
+（仅群内特供版）Mod兼容：现已兼容Martha：
+·角色【马大】的希望点数可以充当魔导力使用；
+·角色【马大】使用道具【蓝色魔导书】时，有25%几率触发法术【天界射线】。
+(SPECIAL EDITION ONLY!!) Mod compatibility: Now has compatibility with Martha: 
+·The HOPE point of Martha can be used as mp.
+·The player has 25% chance to trigger Heaven Ray when uses the Blue Grimoire as Martha.

@@ -1,0 +1,44 @@
+<sounds root="sfx/">
+	<sound name="EXP Get">
+		<sample weight="1" path="exp_get.wav" />
+	</sound>
+	<sound name="Laser Sight">
+		<sample weight="1" path="laser_sight.wav" />
+	</sound>
+	<sound name="Lock-on Mark">
+		<sample weight="1" path="lockon_mark.wav" />
+	</sound>
+	<sound name="Thunder Bursting">
+		<sample weight="1" path="thunder_bursting.wav" />
+	</sound>
+	<sound name="Puyo 1 Chain">
+		<sample weight="1" path="puyo_1_chain.wav" />
+	</sound>
+	<sound name="Puyo 2 Chain">
+		<sample weight="1" path="puyo_2_chain.wav" />
+	</sound>
+	<sound name="Puyo 3 Chain">
+		<sample weight="1" path="puyo_3_chain.wav" />
+	</sound>
+	<sound name="Puyo 4 Chain">
+		<sample weight="1" path="puyo_4_chain.wav" />
+	</sound>
+	<sound name="Puyo 5 Chain">
+		<sample weight="1" path="puyo_5_chain.wav" />
+	</sound>
+	<sound name="Puyo 6 Chain">
+		<sample weight="1" path="puyo_6_chain.wav" />
+	</sound>
+	<sound name="Puyo 7 Chain">
+		<sample weight="1" path="puyo_7_chain.wav" />
+	</sound>
+	<sound name="Puyo Burst">
+		<sample weight="1" path="puyo_burst.wav" />
+	</sound>
+	<sound name="Gel Get">
+		<sample weight="1" path="gel_get.wav" />
+	</sound>
+	<sound name="ET Spaceship">
+		<sample weight="1" path="et_spaceship.wav" />
+	</sound>
+</sounds>

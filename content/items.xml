@@ -1,0 +1,10 @@
+﻿<items gfxroot="gfx/items/" version="1" deathanm2="gfx/death items.anm2">
+	<active id="1" name="Blue Grimoire" description="Let's start learning magic!" gfx="blue_grimoire.png" maxcharges ="0" quality="3" tags="book offensive"/>
+	<passive id="2" name="Puyo Hat" description="Puyos become friendly" gfx="puyo_hat.png" quality="1" tags="offensive summonable"/>
+	<active id="3" name="Wormhole Apple" description="Brainstorm!" gfx="wormhole_apple.png" maxcharges = "12" quality="2" tags="offensive"/>
+	<passive id="4" name="Heart Shaped Cookie" description="Let's fall in love" gfx="heart_shaped_cookie.png" quality="4" tags="summonable"/>
+	
+	<passive id="98" name="Green Grimoire" description="Magic power up!" gfx="green_grimoire.png" quality="3" tags="book offensive noeden quest" craftquality="-1"/>
+
+	<trinket id="1" name="Another Cartride" description="Press E to use extraterrestrial abilities" gfx="another_cartridge.png" tags="lazarussharedglobal nogreed"/>
+</items>

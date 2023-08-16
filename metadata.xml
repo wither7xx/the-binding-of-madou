@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+    <name>[Rep] The Binding of Madou v0.1.2 (Dev)</name>
+    <directory>the binding of madou_v0_1_2_dev</directory>
+    <id>2964475241</id>
+    <description>[h1]&quot;An adventure in basement of a developing magician.&quot;[/h1]
+This is a fan-made mod based on [b][i]Madou Monogatari[/i][/b] and [b][i]Puyo Puyo[/i][/b] series, which features 1 new player, 2 new items and 1 new challenge.
+
+This mod is still under development. More new content is planned to be added soon, including collectibles, trinkets, characters, bosses, and story.
+
+The program part of this mod needs to be improved. You are welcome to make suggestions for its improvement.
+
+This mod supports local co-op mode and controller.
+
+This mod has compatibility with [url=https://steamcommunity.com/sharedfiles/filedetails/?id=836319872]External Item Descriptions[/url] and [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2681875787]Mod Config Menu[/url].
+[h2]New character: Arle Nadja[/h2]
+[b]▷Starting attributes[/b]
+- Health: 3 red hearts
+- Speed: 0.9
+- Tears: 2.53
+- Damage: 3
+- Range: 5.5
+- Shot Speed: 1
+- Luck: 0
+
+[b]▷Starting items[/b]
+- Blue grimoire (Pocket active item)
+- x20 Mana points
+
+[b]▷Features[/b]
+- Level and exp: Killing enemies grants exp points to the player. The player levels up when reaches a certain amount of exp points. When levels up, all red hearts and mana points will be restored, and the player will gain a random stat increase.
+- Critical hit: The player has a chance to cause a critical hit when deals damage to enemies. Critical hit deals 200% player's Damage.
+- Spells: When holding the Blue Grimoire, the player can held 8 different spells, which will be unlocked if the player reachs a certain level or has certain items or kills cettain bosses. On use, consumes several mp and grants the selected spell effect.
+
+See the documentation named &quot;readme.txt&quot; in mod folder for more detailed information.
+
+[h2]CREDITS[/h2]
+Coder:
+wither2x
+
+Designers:
+Sadship
+wither2x
+
+Sprites:
+Taoyufei
+wither2x
+
+[i]Note: This fan-made mod is not affiliated with SEGA and Sonic Team.[/i]
+
+	</description>
+    <version>0.1.2</version>
+    <visibility>Public</visibility>
+    <tag id="Lua"/>
+    <tag id="Items"/>
+    <tag id="Active Items"/>
+    <tag id="Pickups"/>
+    <tag id="Player Characters"/>
+    <tag id="Familiars"/>
+    <tag id="Challenges"/>
+</metadata>

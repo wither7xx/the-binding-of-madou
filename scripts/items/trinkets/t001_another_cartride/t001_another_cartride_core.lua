@@ -1,5 +1,5 @@
 local AnotherCartride_META = {
-	__index = {},
+	__index = setmetatable({}, include("scripts/items/trinkets/t001_another_cartride/t001_another_cartride_constants")),
 }
 local AnotherCartride = AnotherCartride_META.__index
 local ModRef = tbom
@@ -14,16 +14,7 @@ local modTrinketType = tbom.modTrinketType
 local modEffectVariant = tbom.modEffectVariant
 local modSoundEffect = tbom.modSoundEffect
 
-AnotherCartride.TrinketPhase = {
-	PHASE_STANDBY = 0,
-	PHASE_ON_SPACESHIP = 1,
-}
 local TrinketPhase = AnotherCartride.TrinketPhase
-
-AnotherCartride.CheckpointType = {
-	CHECKPOINT_NOT_FOUND = 0,
-	CHECKPOINT_SPACESHIP = 1,
-}
 local CheckpointType = AnotherCartride.CheckpointType
 
 local function GetAnotherCartrideData(player)
@@ -59,8 +50,8 @@ function AnotherCartride:AnotherCartrideGlobalDataInit()
 	if data.CheckpointRoomIdx == nil then
 		data.CheckpointRoomIdx = -1
 	end
-	if data.CheckpointPos == nil then
-		data.CheckpointPos = Vector(0, 0)
+	if data.ShouldUpdateCheckpointPos == nil then
+		data.ShouldUpdateCheckpointPos = true
 	end
 end
 
@@ -136,7 +127,7 @@ end
 
 function AnotherCartride:GetCheckpointRoomIdx()
 	local data = GetAnotherCartrideGlobalData()
-	return data.CheckpointRoomIdx or -1
+	return data.CheckpointRoomIdx
 end
 
 function AnotherCartride:SetCheckpointRoomIdx(value)
@@ -144,14 +135,53 @@ function AnotherCartride:SetCheckpointRoomIdx(value)
 	data.CheckpointRoomIdx = value
 end
 
+function AnotherCartride:ShouldUpdateCheckpointPos()
+	local data = GetAnotherCartrideGlobalData()
+	return data.ShouldUpdateCheckpointPos
+end
+
+function AnotherCartride:SetIfShouldUpdateCheckpointPos(value)
+	local data = GetAnotherCartrideGlobalData()
+	data.ShouldUpdateCheckpointPos = value
+end
+
 function AnotherCartride:GetCheckpointPos()
 	local data = GetAnotherCartrideGlobalData()
-	return data.CheckpointPos or Vector(0, 0)
+	return data.CheckpointPos
 end
 
 function AnotherCartride:SetCheckpointPos(pos)
 	local data = GetAnotherCartrideGlobalData()
 	data.CheckpointPos = pos
+end
+
+function AnotherCartride:TryAddNewCheckpointRoomIdx()
+	--local room_idx = AnotherCartride:GetCheckpointRoomIdx()
+	--if room_idx == nil then
+		local room_type_list = {
+			RoomType.ROOM_DEFAULT,
+		}
+		local room_shape_list = {
+			RoomShape.ROOMSHAPE_1x1,
+		}
+		local new_value = Tools:RandomRoomIdx(true, room_type_list, room_shape_list)
+		AnotherCartride:SetCheckpointRoomIdx(new_value)
+	--end
+end
+
+function AnotherCartride:TryAddNewCheckpoint(room)
+	local pos = AnotherCartride:GetCheckpointPos()
+	if pos == nil or AnotherCartride:ShouldUpdateCheckpointPos() then
+		local margin = 80
+		local new_pos = room:GetRandomPosition(margin)
+		AnotherCartride:SetCheckpointPos(new_pos)
+		pos = new_pos
+		AnotherCartride:SetIfShouldUpdateCheckpointPos(false)
+	end
+	Isaac.Spawn(EntityType.ENTITY_EFFECT, modEffectVariant.ET_CHECKPOINT, 0, pos, Vector(0, 0), nil)
+	--if room:IsFirstVisit() then		--²âÊÔ×¨ÓÃ
+	--	Isaac.Spawn(tbom.modEntityType.ENTITY_PUYO, tbom.PuyoVariant.PUYO_PURPLE, 0, pos, Vector(0, 0), nil)
+	--end
 end
 
 function AnotherCartride:TryAddNewSpaceship(player)
@@ -170,10 +200,21 @@ function AnotherCartride:TryAddNewSpaceship(player)
 	end
 end
 
-function AnotherCartride:TrySpawnCheckpoint(player)
-	local pos = player.Position		--//
-	Isaac.Spawn(EntityType.ENTITY_EFFECT, modEffectVariant.ET_CHECKPOINT, 0, pos, Vector(0, 0), nil)
-	Isaac.Spawn(tbom.modEntityType.ENTITY_PUYO, tbom.PuyoVariant.PUYO_PURPLE, 0, pos, Vector(0, 0), nil)
+function AnotherCartride:IsInCheckpointRoom()
+	local game = Game()
+	local level = game:GetLevel()
+	local stage = level:GetStage()
+	local room_idx = AnotherCartride:GetCheckpointRoomIdx()
+	local current_room_desc = level:GetCurrentRoomDesc()
+	local stage_blacklist = {
+		LevelStage.STAGE4_3,
+		LevelStage.STAGE8,
+	}
+	return room_idx 
+		and room_idx >= 0 
+		and room_idx == current_room_desc.SafeGridIndex 
+		and Tools:GetDimByRoomDesc(current_room_desc) == 0
+		and (not Common:IsInTable(stage, stage_blacklist))
 end
 
 function AnotherCartride:IsInCheckpoint(player)
@@ -184,6 +225,38 @@ function AnotherCartride:IsInCheckpoint(player)
 		end
 	end
 	return false
+end
+
+function AnotherCartride:HasAnotherCartridePlayer()
+	local game = Game()
+	local NumPlayers = game:GetNumPlayers()
+	for p = 0, NumPlayers - 1 do
+		local player = game:GetPlayer(p)
+		if player:HasTrinket(modTrinketType.TRINKET_ANOTHER_CARTRIDE) then
+			return true
+		end
+	end
+	return false
+end
+
+function AnotherCartride:TryTriggerEffect()
+	local game = Game()
+	if AnotherCartride:HasAnotherCartridePlayer() then
+		local NumPlayers = game:GetNumPlayers()
+		for p = 0, NumPlayers - 1 do
+			local player = game:GetPlayer(p)
+			if player.ControlsEnabled then
+				player.ControlsEnabled = false
+			end
+			AnotherCartride:SetTimeout(player, 300)
+			Tools:Immunity_AddImmuneEffect(player, 150)
+			AnotherCartride:TryAddNewSpaceship(player)
+			AnotherCartride:SetPhase(player, TrinketPhase.PHASE_ON_SPACESHIP)
+		end
+		SFXManager():Play(modSoundEffect.SOUND_ET_SPACESHIP)
+		--game:GetSeeds():ForgetStageSeed(game:GetLevel():GetStage())
+		AnotherCartride:SetIfShouldUpdateCheckpointPos(true)
+	end
 end
 
 return AnotherCartride_META

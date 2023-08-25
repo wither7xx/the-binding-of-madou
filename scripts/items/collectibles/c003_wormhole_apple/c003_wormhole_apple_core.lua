@@ -1,5 +1,5 @@
 local WormholeApple_META = {
-	__index = {},
+	__index = setmetatable({}, include("scripts/items/collectibles/c003_wormhole_apple/c003_wormhole_apple_constants")),
 }
 local WormholeApple = WormholeApple_META.__index
 local ModRef = tbom
@@ -12,65 +12,11 @@ local Translation = tbom.Global.Translation
 local tbomCallbacks = tbom.tbomCallbacks
 local modCollectibleType = tbom.modCollectibleType
 
-WormholeApple.CollectiblePhase = {
-	PHASE_STANDBY = 0,
-	PHASE_WELCOME = 1,
-	PHASE_QUIZZING = 2,
-	PHASE_HANDING_IN = 3,
-	PHASE_FORCED_HANDED_IN = 4,
-}
 local CollectiblePhase = WormholeApple.CollectiblePhase
-
-WormholeApple.QuestionDifficulty = {
-	AMAKUCHI = 1,		--甘口（简单题）
-	CHUUKARA = 2,		--中辛（中等题）
-	KARAKUCHI = 3,		--辛口（困难题）
-}
 local QuestionDifficulty = WormholeApple.QuestionDifficulty
-
-WormholeApple.InputCharKey = {
-	KEY_1 = 1,
-	KEY_2 = 2,
-	KEY_3 = 3,
-	KEY_4 = 4,
-	KEY_5 = 5,
-	KEY_6 = 6,
-	KEY_7 = 7,
-	KEY_8 = 8,
-	KEY_9 = 9,
-	KEY_0 = 10,
-	KEY_UNM = 11,
-	KEY_DOT = 12,
-	KEY_BACKSPACE = 13,
-	KEY_RETURN = 14,
-	KEY_CLEAR = 15,
-	KEY_NULL = 16,
-	NUM_NUMBER_CHAR = 10,
-	NUM_INPUT_CHAR_COL = 3,
-	NUM_INPUT_CHAR_ROW = 5,
-	NUM_INPUT_CHAR = 15,
-}
 local InputCharKey = WormholeApple.InputCharKey
 
-do
-	local path = "scripts/items/collectibles/c003_wormhole_apple/"
-	WormholeApple.Texts = setmetatable({}, include(path .. "c003_wormhole_apple_texts"))
-	--WormholeApple.Texts = include(path .. "c003_wormhole_apple_texts")
-	--WormholeApple.Texts.Questions = {
-	--	[QuestionDifficulty.AMAKUCHI] = include(path .. "question_bank/c003_questions_amakuchi"),
-	--	[QuestionDifficulty.CHUUKARA] = include(path .. "question_bank/c003_questions_chuukara"),
-	--	[QuestionDifficulty.KARAKUCHI] = include(path .. "question_bank/c003_questions_karakuchi"),
-	--}
-	WormholeApple.Questions = {
-		[QuestionDifficulty.AMAKUCHI] = include(path .. "question_bank/c003_questions_amakuchi"),
-		[QuestionDifficulty.CHUUKARA] = include(path .. "question_bank/c003_questions_chuukara"),
-		[QuestionDifficulty.KARAKUCHI] = include(path .. "question_bank/c003_questions_karakuchi"),
-	}
-end
-
 local function GetWormholeAppleData(player)
-	--print("GetWormholeAppleData(player)")
-	--print(tostring(player == nil))
 	return Tools:GetPlayerCollectibleData(player, modCollectibleType.COLLECTIBLE_WORMHOLE_APPLE)
 end
 
@@ -479,7 +425,10 @@ function WormholeApple:HasQuestion(player, difficulty, question_ID)
 end
 
 function WormholeApple:CanAnswerQuestion(player, ignore_item)
-	return (player:GetActiveItem(ActiveSlot.SLOT_PRIMARY) == modCollectibleType.COLLECTIBLE_WORMHOLE_APPLE or ignore_item) and (not player:IsCoopGhost()) and (not player:HasCurseMistEffect())
+	return (player:GetActiveItem(ActiveSlot.SLOT_PRIMARY) == modCollectibleType.COLLECTIBLE_WORMHOLE_APPLE 
+			or ignore_item) 
+		and (not player:IsCoopGhost()) 
+		and (not player:HasCurseMistEffect())
 end
 
 function WormholeApple:Compose(player, rng)
@@ -560,6 +509,151 @@ function WormholeApple:Submit(player, answer, is_timeout)
 	end
 end
 
+function WormholeApple:GetAwardingRecipesList(player, rng, quality)
+	local list = {}
+	local basic_recipes = {
+		{Variant = PickupVariant.PICKUP_HEART, SubType = HeartSubType.HEART_FULL,},
+		{Variant = PickupVariant.PICKUP_HEART, SubType = HeartSubType.HEART_HALF,},
+		{Variant = PickupVariant.PICKUP_COIN, SubType = CoinSubType.COIN_PENNY,},
+		------
+		{Variant = PickupVariant.PICKUP_KEY, SubType = KeySubType.KEY_NORMAL,},
+		{Variant = PickupVariant.PICKUP_BOMB, SubType = BombSubType.BOMB_NORMAL,},
+		{Variant = PickupVariant.PICKUP_LIL_BATTERY, SubType = BatterySubType.BATTERY_MICRO,},
+	}
+	local q1_recipes = {
+		{Variant = PickupVariant.PICKUP_HEART, SubType = HeartSubType.HEART_ROTTEN,},
+		{Variant = PickupVariant.PICKUP_TAROTCARD, SubType = Card.CARD_RANDOM,},
+		{Variant = PickupVariant.PICKUP_PILL, SubType = Maths:RandomInt(PillColor.NUM_STANDARD_PILLS, rng, false, false),},
+	}
+	local q2_recipes = {
+		{Variant = PickupVariant.PICKUP_COIN, SubType = CoinSubType.COIN_NICKEL,},
+		{Variant = PickupVariant.PICKUP_HEART, SubType = HeartSubType.HEART_SOUL,},
+		{Variant = PickupVariant.PICKUP_HEART, SubType = HeartSubType.HEART_HALF_SOUL,},
+		{Variant = PickupVariant.PICKUP_LIL_BATTERY, SubType = BatterySubType.BATTERY_NORMAL,},
+	}
+	local q3_recipes = {
+		{Variant = PickupVariant.PICKUP_COIN, SubType = CoinSubType.COIN_DIME,},
+		{Variant = PickupVariant.PICKUP_HEART, SubType = HeartSubType.HEART_GOLDEN,},
+		{Variant = PickupVariant.PICKUP_KEY, SubType = KeySubType.KEY_CHARGED,},
+	}
+	local q4_recipes = {
+		{Variant = PickupVariant.PICKUP_COIN, SubType = CoinSubType.COIN_LUCKYPENNY,},
+		{Variant = PickupVariant.PICKUP_COIN, SubType = CoinSubType.COIN_GOLDEN,},
+		{Variant = PickupVariant.PICKUP_KEY, SubType = KeySubType.KEY_GOLDEN,},
+		{Variant = PickupVariant.PICKUP_BOMB, SubType = BombSubType.BOMB_GOLDEN,},
+		{Variant = PickupVariant.PICKUP_BOMB, SubType = BombSubType.BOMB_GIGA,},
+		{Variant = PickupVariant.PICKUP_PILL, SubType = PillColor.PILL_GOLD,},
+		{Variant = PickupVariant.PICKUP_LIL_BATTERY, SubType = BatterySubType.BATTERY_MEGA,},
+		{Variant = PickupVariant.PICKUP_LIL_BATTERY, SubType = BatterySubType.BATTERY_GOLDEN,},
+	}
+	local special_recipes = {
+		{Variant = PickupVariant.PICKUP_HEART, SubType = HeartSubType.HEART_ETERNAL,},
+		{Variant = PickupVariant.PICKUP_HEART, SubType = HeartSubType.HEART_BLACK,},
+		{Variant = PickupVariant.PICKUP_HEART, SubType = HeartSubType.HEART_BONE,},
+	}
+	if quality == 0 then
+		local q0_recipes = {
+			{Variant = PickupVariant.PICKUP_POOP, SubType = PoopPickupSubType.POOP_SMALL,},
+			{Variant = PickupVariant.PICKUP_HEART, SubType = HeartSubType.HEART_ROTTEN,},
+		}
+		for i = 1, 5 do
+			local rand = Maths:RandomInt(3, rng, false, true)
+			if i <= 4 then
+				table.insert(list, basic_recipes[rand])
+			else
+				local rand_q0 = Maths:RandomInt(3, rng, false, true)
+				if rand_q0 <= 2 then
+					table.insert(list, q0_recipes[rand_q0])
+				else
+					table.insert(list, basic_recipes[rand])
+				end
+			end
+		end
+	elseif quality == 1 then
+		for i = 1, 8 do
+			local rand = Maths:RandomInt(#basic_recipes, rng, false, true)
+			if i <= 7 then
+				table.insert(list, basic_recipes[rand])
+			else
+				local rand_q1 = Maths:RandomInt(3, rng, false, true)
+				if rand_q1 == 1 then
+					table.insert(list, q1_recipes[Maths:RandomInt(#q1_recipes, rng, false, true)])
+				elseif rand_q1 == 2 then
+					table.insert(list, special_recipes[Maths:RandomInt(#special_recipes, rng, false, true)])
+				else
+					table.insert(list, basic_recipes[rand])
+				end
+			end
+		end
+	elseif quality == 2 then
+		for i = 1, 8 do
+			local rand = Maths:RandomInt(#basic_recipes, rng, false, true)
+			if i <= 5 then
+				table.insert(list, basic_recipes[rand])
+			elseif i <= 7 then
+				if i == 7 and Maths:RandomInt(1, rng, true, false) == 0 then
+					table.insert(list, special_recipes[Maths:RandomInt(#special_recipes, rng, false, true)])
+				else
+					table.insert(list, q2_recipes[Maths:RandomInt(#q2_recipes, rng, false, true)])
+				end
+			else
+				if Maths:RandomInt(1, rng, true, false) == 0 then
+					table.insert(list, q1_recipes[Maths:RandomInt(#q1_recipes, rng, false, true)])
+				else
+					table.insert(list, basic_recipes[rand])
+				end
+			end
+		end
+	elseif quality == 3 then
+		for i = 1, 8 do
+			local rand = Maths:RandomInt(#basic_recipes, rng, false, true)
+			if i <= 3 then
+				table.insert(list, basic_recipes[rand])
+			elseif i <= 7 then
+				if i == 7 and Maths:RandomInt(1, rng, true, false) == 0 then
+					table.insert(list, special_recipes[Maths:RandomInt(#special_recipes, rng, false, true)])
+				else
+					table.insert(list, q3_recipes[Maths:RandomInt(#q3_recipes, rng, false, true)])
+				end
+			else
+				local rand_q1 = Maths:RandomInt(3, rng, false, true)
+				if rand_q1 == 1 then
+					table.insert(list, q1_recipes[Maths:RandomInt(#q1_recipes, rng, false, true)])
+				elseif rand_q1 == 2 then
+					table.insert(list, {Variant = PickupVariant.PICKUP_HEART, SubType = HeartSubType.HEART_SOUL,})
+				else
+					table.insert(list, basic_recipes[rand])
+				end
+			end
+		end
+	else
+		for i = 1, 8 do
+			local rand_q4 = Maths:RandomInt(#q4_recipes, rng, false, true)
+			if i <= 5 then
+				table.insert(list, q4_recipes[rand_q4])
+			elseif i == 6 then
+				table.insert(list, basic_recipes[Maths:RandomInt(#basic_recipes, rng, false, true)])
+			elseif i == 7 then
+				if Maths:RandomInt(1, rng, true, false) == 0 then
+					table.insert(list, special_recipes[Maths:RandomInt(#special_recipes, rng, false, true)])
+				else
+					table.insert(list, q3_recipes[Maths:RandomInt(#q3_recipes, rng, false, true)])
+				end
+			else
+				local rand_q1 = Maths:RandomInt(3, rng, false, true)
+				if rand_q1 == 1 then
+					table.insert(list, q1_recipes[Maths:RandomInt(#q1_recipes, rng, false, true)])
+				elseif rand_q1 == 2 then
+					table.insert(list, {Variant = PickupVariant.PICKUP_HEART, SubType = HeartSubType.HEART_SOUL,})
+				else
+					table.insert(list, basic_recipes[Maths:RandomInt(#basic_recipes, rng, false, true)])
+				end
+			end
+		end
+	end
+	return list
+end
+
 function WormholeApple:Award(player, rng)
 	rng = rng or player:GetCollectibleRNG(modCollectibleType.COLLECTIBLE_WORMHOLE_APPLE)
 	local real_score = WormholeApple:GetRealScore(player)
@@ -569,13 +663,12 @@ function WormholeApple:Award(player, rng)
 			if player:HasCollectible(CollectibleType.COLLECTIBLE_HOST_HAT) 
 			or player:HasCollectible(CollectibleType.COLLECTIBLE_PYROMANIAC) 
 			or player:HasTrinket(TrinketType.TRINKET_SAFETY_SCISSORS) then
-				return Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.MOM_FOOT_STOMP, 0, player.Position, Vector(0, 0), nil)
+				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.MOM_FOOT_STOMP, 0, player.Position, Vector(0, 0), nil)
 			else
-				return Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_BOMB, BombSubType.BOMB_SUPERTROLL, player.Position, Vector(0, 0), nil)
+				Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_BOMB, BombSubType.BOMB_SUPERTROLL, player.Position, Vector(0, 0), nil)
 			end
 		else
 			player:UseActiveItem(CollectibleType.COLLECTIBLE_POOP)
-			return nil
 		end
 	else
 		local quality = real_score - 1
@@ -587,11 +680,33 @@ function WormholeApple:Award(player, rng)
 			end
 		end
 		local player_type = player:GetPlayerType()
-		local give_item_directly = WormholeApple:IsCharacterThatCannotPickItems(player_type)
-		return Tools:RandomCollectible_ByQuality(player, quality, rng, give_item_directly)
+		local collectible_type
+		if player_type == PlayerType.PLAYER_CAIN_B then
+			local awarding_recipes_list = WormholeApple:GetAwardingRecipesList(player, rng, quality)
+			for _, recipe in ipairs(awarding_recipes_list) do
+				Isaac.Spawn(EntityType.ENTITY_PICKUP, recipe.Variant, recipe.SubType, player.Position, RandomVector() * 5, nil)
+			end
+		else
+			collectible_type = Tools:RandomCollectible_ByQuality(player, quality, rng, true)
+		end
+		local bonus_rand = Maths:RandomInt(10, rng, true, false)
+		if bonus_rand == 0 then
+			if real_score == 1 then
+				if collectible_type and (not player:HasCollectible(CollectibleType.COLLECTIBLE_CONSOLATION_PRIZE, true)) then
+					Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, CollectibleType.COLLECTIBLE_CONSOLATION_PRIZE, Game():GetRoom():FindFreePickupSpawnPosition(player.Position, 0, true), Vector(0, 0), nil)
+				end
+			elseif real_score == 5 then
+				if not player:HasTrinket(TrinketType.TRINKET_PERFECTION, true) then
+					Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_TRINKET, TrinketType.TRINKET_PERFECTION, player.Position, RandomVector() * 5, nil)
+				end
+			end
+		end
+		if player:HasCollectible(CollectibleType.COLLECTIBLE_BOOK_OF_VIRTUES) then
+			player:AddWisp(CollectibleType.COLLECTIBLE_UNDEFINED, player.Position)
+		end
 	end
 end
-
+--[[
 WormholeApple.CharacterThatCannotPickItems = {}
 
 function WormholeApple:IsCharacterThatCannotPickItems(player_type)
@@ -603,5 +718,5 @@ function WormholeApple:AddCharacterThatCannotPickItems(player_type)
 		table.insert(self.CharacterThatCannotPickItems, player_type)
 	end
 end
-
+]]
 return WormholeApple_META

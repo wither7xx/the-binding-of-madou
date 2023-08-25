@@ -38,6 +38,18 @@
 	<sound name="Gel Get">
 		<sample weight="1" path="gel_get.wav" />
 	</sound>
+	<sound name="Gel Get Arcade 1">
+		<sample weight="1" path="gel_get_arcade_1.wav" />
+	</sound>
+	<sound name="Gel Get Arcade 2">
+		<sample weight="1" path="gel_get_arcade_2.wav" />
+	</sound>
+	<sound name="Gel Get Arcade 3">
+		<sample weight="1" path="gel_get_arcade_3.wav" />
+	</sound>
+	<sound name="Green Gel Hit">
+		<sample weight="1" path="green_gel_hit.wav" />
+	</sound>
 	<sound name="ET Spaceship">
 		<sample weight="1" path="et_spaceship.wav" />
 	</sound>

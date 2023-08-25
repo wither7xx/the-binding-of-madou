@@ -1,4 +1,4 @@
-local AnotherCartride = include("scripts/items/trinkets/t001_another_cartride/t001_another_cartride_core").__index
+local AnotherCartride = include("scripts/items/trinkets/t001_another_cartride/t001_another_cartride_api")
 local ETSpaceship = {}
 local ModRef = tbom
 

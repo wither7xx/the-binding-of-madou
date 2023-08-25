@@ -32,10 +32,12 @@ function Bayoen:OnUse(Spell_ID, rng, player, use_flag)
 	for _, entity in pairs(Isaac.GetRoomEntities()) do
 		if entity:IsActiveEnemy() and entity:IsVulnerableEnemy() then
 			local NPC = entity:ToNPC()
-			if (NPC:IsBoss()) or (NPC.SpawnerEntity and NPC.SpawnerEntity:IsBoss()) then
-				NPC:AddCharmed(EntityRef(entity), 10 * 30)
-			else
-				NPC:AddCharmed(EntityRef(entity), -1)
+			if not NPC:HasEntityFlags(EntityFlag.FLAG_NO_STATUS_EFFECTS) then
+				if (NPC:IsBoss()) or (NPC.SpawnerEntity and NPC.SpawnerEntity:IsBoss()) then
+					NPC:AddCharmed(EntityRef(entity), 10 * 30)
+				else
+					NPC:AddCharmed(EntityRef(entity), -1)
+				end
 			end
 		end
 	end

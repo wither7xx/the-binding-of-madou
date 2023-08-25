@@ -1,5 +1,6 @@
 --感谢 @傷心船Sadship 提供的道具创意
-local WormholeApple = setmetatable({}, include("scripts/items/collectibles/c003_wormhole_apple/c003_wormhole_apple_core"))
+local Main = {}
+local WormholeApple = include("scripts/items/collectibles/c003_wormhole_apple/c003_wormhole_apple_api")
 local ModRef = tbom
 
 local Common = tbom.Global.Common
@@ -19,14 +20,12 @@ local QuestionDifficulty = WormholeApple.QuestionDifficulty
 local InputCharKey = WormholeApple.InputCharKey
 local WormholeAppleTexts = WormholeApple.Texts
 
-WormholeApple:AddCharacterThatCannotPickItems(PlayerType.PLAYER_CAIN_B)
-
-function WormholeApple:OnUse(collectible_type, rng, player, use_flags, active_slot, custom_var_data)
+function Main:OnUse(collectible_type, rng, player, use_flags, active_slot, custom_var_data)
 	local show_anim = true
 	local discharge = true
 	local phase = WormholeApple:GetPhase(player)
 	if phase == CollectiblePhase.PHASE_STANDBY then
-		if use_flags & UseFlag.USE_CARBATTERY == 0 then
+		if use_flags & (UseFlag.USE_CARBATTERY | UseFlag.USE_VOID) == 0 then
 			WormholeApple:Compose(player, rng)
 			--print("test_standby")
 			WormholeApple:SetPhase(player, CollectiblePhase.PHASE_WELCOME)
@@ -45,11 +44,12 @@ function WormholeApple:OnUse(collectible_type, rng, player, use_flags, active_sl
 		WormholeApple:SetAdditionalCountdown(player, 0)
 		WormholeApple:Award(player)
 		WormholeApple:Compose(player)
+		WormholeApple:SetCountdown(player, 0)
 		WormholeApple:SetPhase(player, CollectiblePhase.PHASE_WELCOME)
 	end
 	return {ShowAnim = show_anim, Remove = false, Discharge = discharge}
 end
-ModRef:AddCallback(ModCallbacks.MC_USE_ITEM, WormholeApple.OnUse, modCollectibleType.COLLECTIBLE_WORMHOLE_APPLE)
+ModRef:AddCallback(ModCallbacks.MC_USE_ITEM, Main.OnUse, modCollectibleType.COLLECTIBLE_WORMHOLE_APPLE)
 
 local InputCharFunc = {}
 InputCharFunc[InputCharKey.KEY_UNM] = function (player)
@@ -113,7 +113,7 @@ local function TiggerInputCharKey(player, current_input_char_key)
 	end
 end
 
-function WormholeApple:OnUpdate(player)
+function Main:OnUpdate(player)
 	WormholeApple:WormholeAppleDataInit(player)
 
 	local phase = WormholeApple:GetPhase(player)
@@ -133,7 +133,7 @@ function WormholeApple:OnUpdate(player)
 					local current_input_char_key = WormholeApple:GetCurrentInputCharKey(player)
 					TiggerInputCharKey(player, current_input_char_key)
 				end
-				if GetTiggeredKey(player) ~= nil then
+				if controller_idx == 0 and GetTiggeredKey(player) ~= nil then
 					local current_input_char_key = GetTiggeredKey(player)
 					TiggerInputCharKey(player, current_input_char_key)
 				end
@@ -161,12 +161,13 @@ function WormholeApple:OnUpdate(player)
 			if WormholeApple:GetAdditionalCountdown(player) == 0 and WormholeApple:CanAnswerQuestion(player, true) then
 				WormholeApple:Award(player)
 				WormholeApple:Compose(player)
+				WormholeApple:SetCountdown(player, 0)
 				WormholeApple:SetPhase(player, CollectiblePhase.PHASE_STANDBY)
 			end
 		end
 	end
 end
-ModRef:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, WormholeApple.OnUpdate, 0)
+ModRef:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, Main.OnUpdate, 0)
 
 local function GetGhostItemNum(player)
 	local sum = 0
@@ -200,7 +201,7 @@ local function GetGhostItemNum(player)
 	return sum
 end
 
-function WormholeApple:UpdateGhostPoint(player)
+function Main:UpdateGhostPoint(player)
 	local base_point = 0
 	local player_type = player:GetPlayerType()
 	local ghost_character_list = {
@@ -221,7 +222,7 @@ function WormholeApple:UpdateGhostPoint(player)
 	base_point = base_point + (math.max(0, 300 - nearest_ghost_dis) / 60)
 	WormholeApple:SetGhostPoint(player, base_point)
 end
-ModRef:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, WormholeApple.UpdateGhostPoint, 0)
+ModRef:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, Main.UpdateGhostPoint, 0)
 
 local SymbolSprite = {
 	["root"] = Sprite(),
@@ -524,67 +525,69 @@ local function RenderInputChar(key, pos)
 				used_kcolor.Red = 0
 				used_kcolor.Blue = 0
 			end
-			local base_offset_X = pos.X - 30 - 10 * InputCharKey.NUM_INPUT_CHAR_COL + c * 10
+			local base_offset_X = pos.X - 37 - 10 * InputCharKey.NUM_INPUT_CHAR_COL + c * 10
 			local base_offset_Y = pos.Y - 45 + (r - 1) * 10
 			used_font:DrawStringScaledUTF8(input_char_list[used_char_key], base_offset_X, base_offset_Y, 1, 1, used_kcolor, 0, false)
 		end
 	end
 end
 
-function WormholeApple:RenderText()
+function Main:RenderText()
 	local game = Game()
-	local NumPlayers = game:GetNumPlayers()
-	for p = 0, NumPlayers - 1 do
-		local player = game:GetPlayer(p)
-		local lang = Translation:FixLanguage(Options.Language)
-		local wormhole_apple_text = WormholeApple.Texts
-		local phase = WormholeApple:GetPhase(player)
-		local pos = Tools:GetEntityRenderScreenPos(player)
-		local additional_CD = WormholeApple:GetAdditionalCountdown(player)
-		if (WormholeApple:CanAnswerQuestion(player) or phase == CollectiblePhase.PHASE_HANDING_IN or phase == CollectiblePhase.PHASE_FORCED_HANDED_IN) 
-		and Game():GetRoom():GetRenderMode() ~= RenderMode.RENDER_WATER_REFLECT then
-			local texts = {}
-			local additional_texts = {}
-			local remaining_question_num = WormholeApple:GetRemainingQuestionNum(player)
-			local countdown = math.ceil(WormholeApple:GetCountdown(player) / 60)
-			local remain_texts = wormhole_apple_text.Remain[lang](remaining_question_num, countdown)
-			local answer_text = wormhole_apple_text.Answer[lang](WormholeApple:GetTextBox(player))
-			if phase == CollectiblePhase.PHASE_WELCOME then
-				texts = wormhole_apple_text.Welcome[lang]
-				additional_texts = Common:ConcatArrays(answer_text, remain_texts)
-				RenderInputChar(WormholeApple:GetCurrentInputCharKey(player), pos)
-			elseif phase == CollectiblePhase.PHASE_QUIZZING then
-				local question = WormholeApple:GetCurrentQuestion(player)
-				if question and question.Texts then
-					texts = question:Texts(player, lang)
+	if Tools:CanShowHUD() then
+		local NumPlayers = game:GetNumPlayers()
+		for p = 0, NumPlayers - 1 do
+			local player = game:GetPlayer(p)
+			local lang = Translation:FixLanguage(Options.Language)
+			local wormhole_apple_text = WormholeApple.Texts
+			local phase = WormholeApple:GetPhase(player)
+			local pos = Tools:GetEntityRenderScreenPos(player)
+			local additional_CD = WormholeApple:GetAdditionalCountdown(player)
+			if (WormholeApple:CanAnswerQuestion(player) or phase == CollectiblePhase.PHASE_HANDING_IN or phase == CollectiblePhase.PHASE_FORCED_HANDED_IN) 
+			and Game():GetRoom():GetRenderMode() ~= RenderMode.RENDER_WATER_REFLECT then
+				local texts = {}
+				local additional_texts = {}
+				local remaining_question_num = WormholeApple:GetRemainingQuestionNum(player)
+				local countdown = math.ceil(WormholeApple:GetCountdown(player) / 60)
+				local remain_texts = wormhole_apple_text.Remain[lang](remaining_question_num, countdown)
+				local answer_text = wormhole_apple_text.Answer[lang](WormholeApple:GetTextBox(player))
+				if phase == CollectiblePhase.PHASE_WELCOME then
+					texts = wormhole_apple_text.Welcome[lang]
+					additional_texts = Common:ConcatArrays(answer_text, remain_texts)
+					RenderInputChar(WormholeApple:GetCurrentInputCharKey(player), pos)
+				elseif phase == CollectiblePhase.PHASE_QUIZZING then
+					local question = WormholeApple:GetCurrentQuestion(player)
+					if question and question.Texts then
+						texts = question:Texts(player, lang)
+					end
+					additional_texts = Common:ConcatArrays(answer_text, remain_texts)
+					--if WormholeApple:GetAdditionalCountdown(player) > 0 then
+					--	local error_texts = wormhole_apple_text.Error[lang]
+					--	VerbatimRender(player, error_texts, pos)
+					--end
+					RenderInputChar(WormholeApple:GetCurrentInputCharKey(player), pos)
+				elseif phase == CollectiblePhase.PHASE_HANDING_IN and additional_CD > 0 then
+					texts = wormhole_apple_text.HandingIn[lang]
+				elseif phase == CollectiblePhase.PHASE_FORCED_HANDED_IN and additional_CD > 0 then
+					texts = wormhole_apple_text.ForcedHandedIn[lang]
 				end
-				additional_texts = Common:ConcatArrays(answer_text, remain_texts)
-				--if WormholeApple:GetAdditionalCountdown(player) > 0 then
-				--	local error_texts = wormhole_apple_text.Error[lang]
-				--	VerbatimRender(player, error_texts, pos)
+				VerbatimRender(player, texts, pos)
+				--local texts_pos_offset = Vector(0, 0)
+				--if Tools:GetUserNum() > 1 then
+				--	texts_pos_offset = Vector(30, -45)
+				--else
+				--	for i, str in ipairs(additional_texts) do
+				--		str = "<center>" .. str
+				--	end
 				--end
-				RenderInputChar(WormholeApple:GetCurrentInputCharKey(player), pos)
-			elseif phase == CollectiblePhase.PHASE_HANDING_IN and additional_CD > 0 then
-				texts = wormhole_apple_text.HandingIn[lang]
-			elseif phase == CollectiblePhase.PHASE_FORCED_HANDED_IN and additional_CD > 0 then
-				texts = wormhole_apple_text.ForcedHandedIn[lang]
+				--local texts_pos_offset = Vector(30, -45)
+				VerbatimRender(player, additional_texts, pos)
 			end
-			VerbatimRender(player, texts, pos)
-			--local texts_pos_offset = Vector(0, 0)
-			--if Tools:GetUserNum() > 1 then
-			--	texts_pos_offset = Vector(30, -45)
-			--else
-			--	for i, str in ipairs(additional_texts) do
-			--		str = "<center>" .. str
-			--	end
-			--end
-			--local texts_pos_offset = Vector(30, -45)
-			VerbatimRender(player, additional_texts, pos)
 		end
 	end
 end
 --ModRef:AddCallback(ModCallbacks.MC_POST_PLAYER_RENDER, WormholeApple.RenderText)
-ModRef:AddCallback(ModCallbacks.MC_POST_RENDER, WormholeApple.RenderText)
+ModRef:AddCallback(ModCallbacks.MC_POST_RENDER, Main.RenderText)
 
 --[[
 function WormholeApple:Input_PostPlayerUpdate(player)
@@ -617,7 +620,7 @@ end
 ModRef:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, WormholeApple.Input_PostPlayerUpdate)
 ]]
 
-function WormholeApple:UpdateOnRenderFrame()
+function Main:UpdateOnRenderFrame()
 	local game = Game()
 	local NumPlayers = game:GetNumPlayers()
 	for p = 0, NumPlayers - 1 do
@@ -645,24 +648,33 @@ function WormholeApple:UpdateOnRenderFrame()
 	end
 	RenderFlash = (RenderFlash + 1) % 120
 end
-ModRef:AddCallback(ModCallbacks.MC_POST_RENDER, WormholeApple.UpdateOnRenderFrame)
+ModRef:AddCallback(ModCallbacks.MC_POST_RENDER, Main.UpdateOnRenderFrame)
 
-function WormholeApple:PostGameStarted(is_continued)
+local function TryForciblyHandIn(player)
+	local phase = WormholeApple:GetPhase(player)
+	if phase == CollectiblePhase.PHASE_QUIZZING then
+		local remaining_question_num = WormholeApple:GetRemainingQuestionNum(player)
+		WormholeApple:ModifyRealScore(player, -remaining_question_num)
+		WormholeApple:SetAdditionalCountdown(player, 300)
+		WormholeApple:SetPhase(player, CollectiblePhase.PHASE_FORCED_HANDED_IN)
+	end
+end
+
+function Main:PostGameStarted(is_continued)
 	if is_continued then
 		local game = Game()
 		local NumPlayers = game:GetNumPlayers()
 		for p = 0, NumPlayers - 1 do
 			local player = game:GetPlayer(p)
-			local phase = WormholeApple:GetPhase(player)
-			if phase == CollectiblePhase.PHASE_QUIZZING then
-				local remaining_question_num = WormholeApple:GetRemainingQuestionNum(player)
-				WormholeApple:ModifyRealScore(player, -remaining_question_num)
-				WormholeApple:SetAdditionalCountdown(player, 300)
-				WormholeApple:SetPhase(player, CollectiblePhase.PHASE_FORCED_HANDED_IN)
-			end
+			TryForciblyHandIn(player)
 		end
 	end
 end
-ModRef:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, WormholeApple.PostGameStarted)
+ModRef:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, Main.PostGameStarted)
 
-return WormholeApple
+function Main:PostUpdate()
+	Tools:TryCheckEsauJrData(TryForciblyHandIn)
+end
+ModRef:AddPriorityCallback(ModCallbacks.MC_POST_UPDATE, 10, Main.PostUpdate)
+
+return Main

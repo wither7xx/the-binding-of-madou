@@ -104,7 +104,7 @@ function Fire:EvaluateCache(player, caflag)
 			end
 			if Fire:CanShootSpecialTears(player) or (not player:HasWeaponType(WeaponType.WEAPON_TEARS)) then
 				if caflag == CacheFlag.CACHE_TEARCOLOR then
-					player.TearColor = Color(1,1,1,1,0.3,0,0)
+					player.TearColor = Color(1, 1, 1, 1, 0.3, 0, 0)
 				end
 			end
 		else

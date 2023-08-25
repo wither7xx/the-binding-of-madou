@@ -886,8 +886,8 @@ function Magic:BaseSpellDataInit(player, spell_ID)
 	local SpellMagicType = Magic:GetMagicType(spell_ID)
 	if data.BaseSpellData == nil then
 		data.BaseSpellData = {}
-		data.BaseSpellData[MagicType.NONE] = {}
-		data.BaseSpellData[MagicType.AGGRESSIVE] = {
+		data.BaseSpellData[tostring(MagicType.NONE)] = {}
+		data.BaseSpellData[tostring(MagicType.AGGRESSIVE)] = {
 			["UsedInCurrentRoom"] = false,
 			["MagicCircle"] = nil,
 			["TearFlagSeed"] = 0,
@@ -904,15 +904,15 @@ function Magic:BaseSpellDataInit(player, spell_ID)
 				ChargeBarPosOffset = {},
 			},
 		}
-		data.BaseSpellData[MagicType.DEFENSIVE] = {}
-		data.BaseSpellData[MagicType.SPECIAL] = {}
-		data.BaseSpellData[MagicType.LOCKON] = {
+		data.BaseSpellData[tostring(MagicType.DEFENSIVE)] = {}
+		data.BaseSpellData[tostring(MagicType.SPECIAL)] = {}
+		data.BaseSpellData[tostring(MagicType.LOCKON)] = {
 			["LaserSight"] = nil,
 			["TargetHeap"] = {},
 			["TargetNum"] = 0,
 			["LockonCD"] = 0,	--注：此处指玩家实际使用时的计数器，每次使用后要将MaxLockonCD的值赋给它
 		}
-		data.BaseSpellData[MagicType.HELPER] = {}
+		data.BaseSpellData[tostring(MagicType.HELPER)] = {}
 	end
 end
 
@@ -1204,10 +1204,11 @@ function Magic:TryToggleCurrentSpell(player, use_flags, rng)
 	end
 end
 
+--注：由于基类法术类型含有0，则存储器会将本应在数组部分的1至5视为散列部分（即变为字符键"1"至"5"，而非预期的数字键），故作为键的基类法术类型的tostring()不可省略，否则会造成无法检索到预期值的错误！
 function Magic:BaseSpell_AddAttribute(player, magic_type, key, starting_value)
 	local data = Tools:GetPlayerData(player)
 	if data.BaseSpellData then
-		local BaseSpellDataByType = data.BaseSpellData[magic_type]
+		local BaseSpellDataByType = data.BaseSpellData[tostring(magic_type)]
 		if BaseSpellDataByType and BaseSpellDataByType[key] == nil and type(key) == "string" then
 			BaseSpellDataByType[key] = starting_value
 		end
@@ -1217,7 +1218,7 @@ end
 function Magic:BaseSpell_GetAttribute(player, magic_type, key)
 	local data = Tools:GetPlayerData(player)
 	if data.BaseSpellData then
-		local BaseSpellDataByType = data.BaseSpellData[magic_type]
+		local BaseSpellDataByType = data.BaseSpellData[tostring(magic_type)]
 		if BaseSpellDataByType and type(key) == "string" then
 			return BaseSpellDataByType[key]
 		end
@@ -1228,7 +1229,7 @@ end
 function Magic:BaseSpell_SetAttribute(player, magic_type, key, value)
 	local data = Tools:GetPlayerData(player)
 	if data.BaseSpellData then
-		local BaseSpellDataByType = data.BaseSpellData[magic_type]
+		local BaseSpellDataByType = data.BaseSpellData[tostring(magic_type)]
 		if BaseSpellDataByType and type(key) == "string" then
 			BaseSpellDataByType[key] = value
 		end
@@ -1238,7 +1239,7 @@ end
 function Magic:BaseSpell_ModifyAttribute(player, magic_type, key, amount)
 	local data = Tools:GetPlayerData(player)
 	if data.BaseSpellData then
-		local BaseSpellDataByType = data.BaseSpellData[magic_type]
+		local BaseSpellDataByType = data.BaseSpellData[tostring(magic_type)]
 		if BaseSpellDataByType and type(key) == "string" and type(BaseSpellDataByType[key]) == "number" then
 			BaseSpellDataByType[key] = BaseSpellDataByType[key] + amount
 		end
@@ -1248,7 +1249,7 @@ end
 function Magic:BaseSpell_ClearAttribute(player, magic_type, key)
 	local data = Tools:GetPlayerData(player)
 	if data.BaseSpellData then
-		local BaseSpellDataByType = data.BaseSpellData[magic_type]
+		local BaseSpellDataByType = data.BaseSpellData[tostring(magic_type)]
 		if BaseSpellDataByType and type(key) == "string" and BaseSpellDataByType[key] ~= nil then
 			BaseSpellDataByType[key] = nil
 		end

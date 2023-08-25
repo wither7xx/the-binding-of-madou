@@ -1,4 +1,5 @@
-local AnotherCartride = setmetatable({}, include("scripts/items/trinkets/t001_another_cartride/t001_another_cartride_core"))
+local Main = {}
+local AnotherCartride = include("scripts/items/trinkets/t001_another_cartride/t001_another_cartride_api")
 local ModRef = tbom
 
 local Common = tbom.Global.Common
@@ -14,7 +15,7 @@ local modSoundEffect = tbom.modSoundEffect
 local TrinketPhase = AnotherCartride.TrinketPhase
 local CheckpointType = AnotherCartride.CheckpointType
 
-function AnotherCartride:PostPlayerUpdate(player)
+function Main:PostPlayerUpdate(player)
 	AnotherCartride:AnotherCartrideDataInit(player)
 
 	local phase = AnotherCartride:GetPhase(player)
@@ -52,15 +53,16 @@ function AnotherCartride:PostPlayerUpdate(player)
 	end
 	AnotherCartride:ModifyTimeout(player, -1)
 end
-ModRef:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, AnotherCartride.PostPlayerUpdate, 0)
+ModRef:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, Main.PostPlayerUpdate, 0)
 
-function AnotherCartride:PostPlayerRender(player, offset)	--不要将player:Render()放在这里，会死递归！
+function Main:PostPlayerRender(player, offset)	--不要将player:Render()放在这里，会死递归！
 	local phase = AnotherCartride:GetPhase(player)
 	local timeout = AnotherCartride:GetTimeout(player)
 	local current_checkpoint = AnotherCartride:GetCurrentCheckpoint(player)
 	local game = Game()
-	if game:GetRoom():GetRenderMode() ~= RenderMode.RENDER_WATER_REFLECT then
-		if current_checkpoint == CheckpointType.CHECKPOINT_SPACESHIP and phase ~= TrinketPhase.PHASE_ON_SPACESHIP then
+	local room = game:GetRoom()
+	if room:IsClear() and room:GetRenderMode() ~= RenderMode.RENDER_WATER_REFLECT then
+		if player:HasTrinket(modTrinketType.TRINKET_ANOTHER_CARTRIDE) and current_checkpoint == CheckpointType.CHECKPOINT_SPACESHIP and phase ~= TrinketPhase.PHASE_ON_SPACESHIP then
 			local bubbles = AnotherCartride:GetBubbles(player)
 			if bubbles then
 				if AnotherCartride:IsStartingAnimFinished(player) then
@@ -77,9 +79,9 @@ function AnotherCartride:PostPlayerRender(player, offset)	--不要将player:Render(
 		end
 	end
 end
-ModRef:AddCallback(ModCallbacks.MC_POST_PLAYER_RENDER, AnotherCartride.PostPlayerRender, 0)
+ModRef:AddCallback(ModCallbacks.MC_POST_PLAYER_RENDER, Main.PostPlayerRender, 0)
 
-function AnotherCartride:PostEntityRemove(entity)
+function Main:PostEntityRemove(entity)
 	local bomb = entity:ToBomb()
 	local base_radius = 80
 	local radius = base_radius * bomb.RadiusMultiplier
@@ -91,30 +93,20 @@ function AnotherCartride:PostEntityRemove(entity)
 		end
 	end
 	if checkpoint_triggered then
-		local has_cartride_player = false
-		local NumPlayers = Game():GetNumPlayers()
-		for p = 0, NumPlayers - 1 do
-			local player = Game():GetPlayer(p)
-			if player:HasTrinket(modTrinketType.TRINKET_ANOTHER_CARTRIDE) then
-				has_cartride_player = true
-				break
-			end
-		end
-		if has_cartride_player then
-			for p = 0, NumPlayers - 1 do
-				local player = Game():GetPlayer(p)
-				if player.ControlsEnabled then
-					player.ControlsEnabled = false
-				end
-				AnotherCartride:SetTimeout(player, 300)
-				Tools:Immunity_AddImmuneEffect(player, 150)
-				AnotherCartride:TryAddNewSpaceship(player)
-				AnotherCartride:SetPhase(player, TrinketPhase.PHASE_ON_SPACESHIP)
-			end
-			SFXManager():Play(modSoundEffect.SOUND_ET_SPACESHIP)
+		AnotherCartride:TryTriggerEffect()
+	end
+end
+ModRef:AddCallback(ModCallbacks.MC_POST_ENTITY_REMOVE, Main.PostEntityRemove, EntityType.ENTITY_BOMB)
+
+function Main:PostNewRoom()
+	if AnotherCartride:HasAnotherCartridePlayer() then
+		AnotherCartride:TryAddNewCheckpointRoomIdx()
+		if AnotherCartride:IsInCheckpointRoom() then
+			local room = Game():GetRoom()
+			AnotherCartride:TryAddNewCheckpoint(room)
 		end
 	end
 end
-ModRef:AddCallback(ModCallbacks.MC_POST_ENTITY_REMOVE, AnotherCartride.PostEntityRemove, EntityType.ENTITY_BOMB)
+ModRef:AddCallback(ModCallbacks.MC_POST_NEW_ROOM, Main.PostNewRoom)
 
 return AnotherCartride

@@ -19,6 +19,9 @@ local modChallenge = tbom.modChallenge
 function MeteorShower:PostPlayerInit(player)
 	if player and player.Variant == 0 then
 		if Isaac.GetChallenge() == modChallenge.CHALLENGE_METEOR_SHOWER then
+			if player:GetPlayerType() ~= modPlayerType.PLAYER_ARLENADJA then
+				Isaac.ExecuteCommand("restart " .. modPlayerType.PLAYER_ARLENADJA)
+			end
 			player:ChangePlayerType(modPlayerType.PLAYER_ARLENADJA)
 		end
 	end
@@ -47,7 +50,11 @@ function MeteorShower:Reset(is_continued)
 	if not is_continued then
 		if Isaac.GetChallenge() == modChallenge.CHALLENGE_METEOR_SHOWER then
 			local player = Isaac.GetPlayer(0)
+			--if player:GetPlayerType() ~= modPlayerType.PLAYER_ARLENADJA then
+			--	Isaac.ExecuteCommand("restart " .. modPlayerType.PLAYER_ARLENADJA)
+			--end
 			local pool = Game():GetItemPool()
+			player:AddCollectible(CollectibleType.COLLECTIBLE_BOOM)
 			player:AddCollectible(modCollectibleType.COLLECTIBLE_GREEN_GRIMOIRE)
 			pool:RemoveCollectible(CollectibleType.COLLECTIBLE_HOST_HAT)
 			pool:RemoveCollectible(CollectibleType.COLLECTIBLE_PYROMANIAC)

@@ -1,3 +1,4 @@
+--感谢 @桃雨飞 提供的角色过场立绘与操作说明贴图
 local ArleNadja = {}
 local ModRef = tbom
 
@@ -15,6 +16,8 @@ local Magic = tbom.Magic
 local LevelExp = tbom.LevelExp
 local CriticalChance = tbom.CriticalChance
 local AwardFlag = tbom.AwardFlag
+
+local Puyo = include("scripts/monsters/e305_puyo/e305_puyo_api")
 
 local UnlockableSpellList = {
 	["2"] = SpellType.SPELL_HEALING,
@@ -35,20 +38,43 @@ local UnlockableSpellList = {
 	["30"] = SpellType.SPELL_THUNDER,
 }
 
+local function HasArleNadja()
+	local NumPlayers = Game():GetNumPlayers()
+	for p = 0, NumPlayers - 1 do
+		local player = Isaac.GetPlayer(p)
+		if player:GetPlayerType() == modPlayerType.PLAYER_ARLENADJA then
+			return true
+		end
+	end
+	return false
+end
+
+local function CheckGrimoire(player)
+	if player:GetPlayerType() == modPlayerType.PLAYER_ARLENADJA 
+	and player:GetActiveItem(ActiveSlot.SLOT_POCKET) ~= modCollectibleType.COLLECTIBLE_BLUE_GRIMOIRE then
+		player:SetPocketActiveItem(modCollectibleType.COLLECTIBLE_BLUE_GRIMOIRE, ActiveSlot.SLOT_POCKET, false)
+	end
+end
+
 function ArleNadja:PostPlayerInit(player)
 	if player:GetPlayerType() == modPlayerType.PLAYER_ARLENADJA then
 		local game = Game()
-		if not (game:GetRoom():GetFrameCount() < 0 and game:GetFrameCount() > 0) then
-			player:SetPocketActiveItem(modCollectibleType.COLLECTIBLE_BLUE_GRIMOIRE, ActiveSlot.SLOT_POCKET, false)
+		if game:GetFrameCount() <= 0 or game:GetRoom():GetFrameCount() > 0 then
+			player:SetPocketActiveItem(modCollectibleType.COLLECTIBLE_BLUE_GRIMOIRE, ActiveSlot.SLOT_POCKET, true)
+			game:GetItemPool():RemoveCollectible(modCollectibleType.COLLECTIBLE_BLUE_GRIMOIRE)
 		end
 	end
 end
 ModRef:AddCallback(ModCallbacks.MC_POST_PLAYER_INIT, ArleNadja.PostPlayerInit, 0)
 
-function ArleNadja:CheckPlayerData(player)		--//待修改：小红罐怎么处理？
+function ArleNadja:PostPlayerUpdate(player)
 	if player:GetPlayerType() == modPlayerType.PLAYER_ARLENADJA then
 		local starting_sprite_path = "gfx/characters/001_arle_nadja.anm2"
 		Tools:TrySetStartingCostume(player, modCostume.ARLE_HAIR, starting_sprite_path)
+
+		--if player:GetActiveItem(ActiveSlot.SLOT_POCKET) ~= modCollectibleType.COLLECTIBLE_BLUE_GRIMOIRE then
+		--	player:SetPocketActiveItem(modCollectibleType.COLLECTIBLE_BLUE_GRIMOIRE, ActiveSlot.SLOT_POCKET, false)
+		--end
 
 		Magic:TrySetMageCharacter(player, true)
 		Magic:PlayerDataInit(player, 20, 20, 20)
@@ -78,7 +104,17 @@ function ArleNadja:CheckPlayerData(player)		--//待修改：小红罐怎么处理？
 		end
 	end
 end
-ModRef:AddPriorityCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, CallbackPriority.EARLY, ArleNadja.CheckPlayerData, 0)	--留出一定时间交给读档
+ModRef:AddPriorityCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, CallbackPriority.EARLY, ArleNadja.PostPlayerUpdate, 0)	--留出一定时间交给读档
+
+function ArleNadja:PostUpdate()
+	Tools:TryCheckEsauJrData(CheckGrimoire)
+	if HasArleNadja() then
+		Puyo:AddPuyoChanceCache("ArleNadja", 10)
+	else
+		Puyo:ClearPuyoChanceCache("ArleNadja")
+	end
+end
+ModRef:AddPriorityCallback(ModCallbacks.MC_POST_UPDATE, 10, ArleNadja.PostUpdate)
 
 function ArleNadja:EvaluateCache(player, caflag)
 	if player:GetPlayerType() == modPlayerType.PLAYER_ARLENADJA then
@@ -116,11 +152,31 @@ function ArleNadja:EvaluateCache(player, caflag)
 end
 ModRef:AddCallback(ModCallbacks.MC_EVALUATE_CACHE, ArleNadja.EvaluateCache)
 
+local function GetCurrentRoomFrameCount()
+	local game = Game()
+	local room = game:GetRoom()
+	if not game:IsGreedMode() then
+		return room:GetFrameCount()
+	else
+		local greed_wave_frame_count = Tools:GameData_GetAttribute("ArleNadja_GreedWaveFrameCount") or 0
+		return room:GetFrameCount() - greed_wave_frame_count
+	end
+end
+
+function ArleNadja:PostNewGreedModeWave(current_wave)
+	local game = Game()
+	if game:IsGreedMode() then
+		local room = game:GetRoom()
+		Tools:GameData_SetAttribute("ArleNadja_GreedWaveFrameCount", room:GetFrameCount())
+	end
+end
+ModRef:AddCallback(tbomCallbacks.TBOMC_POST_NEW_GREED_MODE_WAVE, ArleNadja.PostNewGreedModeWave)
+
 function ArleNadja:LevelExpDataUpdate(player)
-	local room = Game():GetRoom()
+	
 	if player:GetPlayerType() == modPlayerType.PLAYER_ARLENADJA then
 		if player:HasCollectible(CollectibleType.COLLECTIBLE_BIRTHRIGHT) then
-			local FlashShootMulti = math.floor(math.max(100, 400 - room:GetFrameCount()) / 100) - 1
+			local FlashShootMulti = math.floor(math.max(100, 400 - GetCurrentRoomFrameCount()) / 100) - 1
 			LevelExp:ExpMulti_SetAttribute(player, "FlashShoot", FlashShootMulti)
 		else
 			LevelExp:ExpMulti_ClearAttribute(player, "FlashShoot")
@@ -162,5 +218,23 @@ function ArleNadja:PreGetUpgradeAward(player, award_flag)	--若只想获得某种特别奖
 	end
 end
 ModRef:AddCallback(tbomCallbacks.TBOMC_PRE_GET_UPGRADE_AWARD, ArleNadja.PreGetUpgradeAward)
+
+function ArleNadja:PostNewRoom()
+	local NumPlayers = Game():GetNumPlayers()
+	for p = 0, NumPlayers - 1 do
+		local player = Isaac.GetPlayer(p)
+		CheckGrimoire(player)
+	end
+end
+ModRef:AddCallback(ModCallbacks.MC_POST_NEW_ROOM, ArleNadja.PostNewRoom)
+
+function ArleNadja:PostNewLevel()
+	local NumPlayers = Game():GetNumPlayers()
+	for p = 0, NumPlayers - 1 do
+		local player = Isaac.GetPlayer(p)
+		CheckGrimoire(player)
+	end
+end
+ModRef:AddCallback(ModCallbacks.MC_POST_NEW_LEVEL, ArleNadja.PostNewLevel)
 
 return ArleNadja

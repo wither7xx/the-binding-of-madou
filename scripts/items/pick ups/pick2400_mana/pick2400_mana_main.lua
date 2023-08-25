@@ -10,9 +10,10 @@ local modCollectibleType = tbom.modCollectibleType
 local Magic = tbom.Magic
 
 function Mana:Spawn(pickup)	
+	local game = Game()
 	local MageNum = 0
 	local GrimoireNum = 0
-	local NumPlayers = Game():GetNumPlayers()
+	local NumPlayers = game:GetNumPlayers()
 	for p = 0, NumPlayers - 1 do
 		local player = Isaac.GetPlayer(p)
 		if Magic:IsMageCharacter(player) then
@@ -21,15 +22,16 @@ function Mana:Spawn(pickup)
 			GrimoireNum = GrimoireNum + 1
 		end
 	end
-	local room = Game():GetRoom()
+	local room = game:GetRoom()
 	if MageNum + GrimoireNum > 0 and (not room:HasCurseMist()) then
 		local chance = 1 / 24 * 100
-		if MageNum > 0 then
+		if MageNum > 0 and (not game:IsGreedMode()) then
 			chance = 10
 		end
 		chance = chance + math.max(0, (GrimoireNum - 1)) * 2 + math.max(0, (MageNum - 1)) * 3
 		if not (pickup:IsShopItem() 
-				or (pickup.Variant == PickupVariant.PICKUP_COIN and pickup.SubType == CoinSubType.COIN_GOLDEN)) then
+				or (pickup.Variant == PickupVariant.PICKUP_COIN and pickup.SubType == CoinSubType.COIN_GOLDEN)
+				or (pickup.Variant == PickupVariant.PICKUP_POOP and pickup.SubType == PoopPickupSubType.POOP_SMALL)) then
 			if Tools:CanTriggerEvent(pickup, chance) then
 				pickup:Morph(EntityType.ENTITY_PICKUP, modPickupVariant.PICKUP_MANA, 0, false, true, true)
 				return
@@ -40,6 +42,7 @@ end
 ModRef:AddCallback(ModCallbacks.MC_POST_PICKUP_UPDATE, Mana.Spawn, PickupVariant.PICKUP_HEART)
 ModRef:AddCallback(ModCallbacks.MC_POST_PICKUP_UPDATE, Mana.Spawn, PickupVariant.PICKUP_COIN)
 ModRef:AddCallback(ModCallbacks.MC_POST_PICKUP_UPDATE, Mana.Spawn, PickupVariant.PICKUP_BOMB)
+ModRef:AddCallback(ModCallbacks.MC_POST_PICKUP_UPDATE, Mana.Spawn, PickupVariant.PICKUP_POOP)
 ModRef:AddCallback(ModCallbacks.MC_POST_PICKUP_UPDATE, Mana.Spawn, PickupVariant.PICKUP_KEY)
 
 function Mana:SpawnBonus(entity)

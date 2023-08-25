@@ -12,10 +12,19 @@ local Translation = tbom.Global.Translation
 local tbomCallbacks = tbom.tbomCallbacks
 local modCollectibleType = tbom.modCollectibleType
 
-HeartShapedCookie.SelfHurtingCharacter = {}
+local function GetHeartShapedCookieGlobalData()
+	return Tools:Global_GetCollectibleData(modCollectibleType.COLLECTIBLE_HEART_SHAPED_COOKIE)
+end
+
+function HeartShapedCookie:GetSelfHurtingCharacterList()
+	local data = GetHeartShapedCookieGlobalData()
+	data.HurtingCharacterList = data.HurtingCharacterList or {}
+	return data.HurtingCharacterList
+end
 
 function HeartShapedCookie:IsSelfHurtingCharacter(player_type)
-	for i, config in pairs(self.SelfHurtingCharacter) do
+	local self_hurting_character_list = HeartShapedCookie:GetSelfHurtingCharacterList()
+	for _, config in pairs(self_hurting_character_list) do
 		if config.Type == player_type then
 			return true
 		end
@@ -24,7 +33,8 @@ function HeartShapedCookie:IsSelfHurtingCharacter(player_type)
 end
 
 function HeartShapedCookie:GetHurtChance(player_type)
-	for i, config in pairs(self.SelfHurtingCharacter) do
+	local self_hurting_character_list = HeartShapedCookie:GetSelfHurtingCharacterList()
+	for _, config in pairs(self_hurting_character_list) do
 		if config.Type == player_type then
 			return config.HurtChance
 		end
@@ -35,9 +45,10 @@ end
 function HeartShapedCookie:AddSelfHurtingCharacter(player_type, hurt_chance)
 	hurt_chance = hurt_chance or 50
 	hurt_chance = math.max(0, math.min(hurt_chance, 100))
+	local self_hurting_character_list = HeartShapedCookie:GetSelfHurtingCharacterList()
 	if not HeartShapedCookie:IsSelfHurtingCharacter(player_type) then
 		local config = {Type = player_type, HurtChance = hurt_chance,}
-		table.insert(self.SelfHurtingCharacter, config)
+		table.insert(self_hurting_character_list, config)
 	end
 end
 

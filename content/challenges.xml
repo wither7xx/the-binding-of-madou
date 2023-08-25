@@ -30,4 +30,5 @@
 -->
 <challenges version="1">
     <challenge name="Meteor Shower" id="1" endstage="11" roomfilter="4" altpath="true" canshoot="false"/>
+	<challenge name="Descending Into Puyo Hell" id="2" endstage="10" roomfilter="4" altpath="false"/>
 </challenges>

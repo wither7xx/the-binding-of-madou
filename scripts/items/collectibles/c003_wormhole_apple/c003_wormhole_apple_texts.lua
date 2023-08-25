@@ -1,15 +1,10 @@
-local Texts_META = {
-	__index = {},
-}
-local Texts = Texts_META.__index
+local Texts = {}
 
 Texts.Welcome = {
 	["zh"] = {
 		"<center>各位考生你们好，欢迎参加普通高等学校招生全地下室统一考试",
 		"<center>预祝你取得优异成绩",
 		"<center>请在规定时间内回答以下问题，并在指定位置输入答案",
-		--"<center>（仅支持输入数字、符号和小数点）",
-		--"<center>（按下回车键即可提交答案，按下[掉落键]即可删去字符）",
 		"<center>{lightblue}[射击键]{lightblue_end} - 选择字符  {lightblue}[使用键]{lightblue_end} - 输入选择的字符",
 		"<center>{num}{grey}×{grey_end}{num_end} - 删除字符  {num}{grey}→{grey_end}{num_end} - 提交  {num}{grey}C{grey_end}{num_end} - 清空",
 		"<center>（亦可使用键盘直接输入数字、符号等）{sps_end}",
@@ -27,23 +22,13 @@ Texts.Welcome = {
 	},
 }
 
---[[
-Texts.Error = {
-	["zh"] = {
-		"<down><flash:red>请先完成本次答题再进行新一轮答题！",
-	},
-	["en"] = {
-
-	},
-}
-]]
-
 Texts.HandingIn = {
 	["zh"] = {
 		"<center><flash:green>交卷成功，请领取奖励！",
 	},
 	["en"] = {
-
+		"<center><flash:green>Submitted successfully.",
+		"<center><flash:green>Please claim your reward.",
 	},
 }
 
@@ -52,7 +37,8 @@ Texts.ForcedHandedIn = {
 		"<center><flash:red>检测到中途退出考试，已自动交卷！",
 	},
 	["en"] = {
-
+		"<center><flash:red>Midway exit detected.",
+		"<center><flash:red>The quiz has been automatically submitted.",
 	},
 }
 
@@ -82,16 +68,26 @@ Texts.Remain = {
 Texts.Answer = {
 	["zh"] = function (text)
 		local texts = {
-			"<right>输入答案： {num}" .. text .. "_{num_end}",
+			"<right>输入答案： {num}" .. text,
 		}
+		if string.len(text) < 32 then
+			texts[1] = texts[1] .. "_{num_end}"
+		else
+			texts[1] = texts[1] .. "{num_end}"
+		end
 		return texts
 	end,
 	["en"] = function (text)
 		local texts = {
-			"<right>Ans.: {num}" .. text .. "_{num_end}",
+			"<right>Ans.: {num}" .. text,
 		}
+		if string.len(text) < 32 then
+			texts[1] = texts[1] .. "_{num_end}"
+		else
+			texts[1] = texts[1] .. "{num_end}"
+		end
 		return texts
 	end,
 }
 
-return Texts_META
+return Texts

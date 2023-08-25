@@ -110,6 +110,10 @@ function DebugConsole:OnExecuteCmd(cmd, param)
 	if tbomCmdFunction[cmd] ~= nil and tbomCmdFunction[cmd][param] ~= nil then
 		tbomCmdFunction[cmd][param](cmd, param)
 	end
+	if cmd == "tsc" and tonumber(param) then
+		local player = Isaac.GetPlayer(0)
+		Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, tonumber(param), player.Position, Vector(0, 0), nil)
+	end
 end
 ModRef:AddCallback(ModCallbacks.MC_EXECUTE_CMD, DebugConsole.OnExecuteCmd)
 

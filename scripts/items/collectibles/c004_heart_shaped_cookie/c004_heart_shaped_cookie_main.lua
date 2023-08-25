@@ -1,5 +1,5 @@
-local HeartShapedCookie = setmetatable({}, include("scripts/items/collectibles/c004_heart_shaped_cookie/c004_heart_shaped_cookie_core"))
-
+local Main = {}
+local HeartShapedCookie = include("scripts/items/collectibles/c004_heart_shaped_cookie/c004_heart_shaped_cookie_api")
 local ModRef = tbom
 
 local Common = tbom.Global.Common
@@ -12,7 +12,7 @@ local modCollectibleType = tbom.modCollectibleType
 
 HeartShapedCookie:AddSelfHurtingCharacter(PlayerType.PLAYER_MAGDALENE_B, 50)
 
-function HeartShapedCookie:OnTakeDamage(took_dmg, dmg_amount, dmg_flags, dmg_source, dmg_cd_frames)
+function Main:OnTakeDamage(took_dmg, dmg_amount, dmg_flags, dmg_source, dmg_cd_frames)
 	local player = took_dmg:ToPlayer()
 	if player and player:HasCollectible(modCollectibleType.COLLECTIBLE_HEART_SHAPED_COOKIE) then
 		local source_entity = dmg_source.Entity
@@ -21,15 +21,16 @@ function HeartShapedCookie:OnTakeDamage(took_dmg, dmg_amount, dmg_flags, dmg_sou
 				local player_type = player:GetPlayerType()
 				local chance = Maths:RandomInt(100, nil, false, true)
 				if chance > HeartShapedCookie:GetHurtChance(player_type) then
+					Tools:Immunity_AddImmuneEffect(player, 6, false)
 					return false
 				end
 			end
 		end
 	end
 end
-ModRef:AddPriorityCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, CallbackPriority.LATE, HeartShapedCookie.OnTakeDamage, EntityType.ENTITY_PLAYER)
+ModRef:AddPriorityCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, CallbackPriority.LATE, Main.OnTakeDamage, EntityType.ENTITY_PLAYER)
 
-function HeartShapedCookie:PreAddCollectible(collectible_type, rng, player)
+function Main:PreAddCollectible(collectible_type, rng, player)
 	local lang = Translation:FixLanguage()
 	local HeartShapedCookieName = Translation:GetDefaultCollectibleConfigText(collectible_type).Name
 	local HeartShapedCookieDesc = {}
@@ -48,6 +49,6 @@ function HeartShapedCookie:PreAddCollectible(collectible_type, rng, player)
 		HUD:ShowItemText(HeartShapedCookieName, HeartShapedCookieDesc[player_type][lang] or HeartShapedCookieDesc[player_type]["en"])
 	end
 end
-ModRef:AddCallback(tbomCallbacks.TBOMC_PRE_ADD_COLLECTIBLE, HeartShapedCookie.PreAddCollectible, modCollectibleType.COLLECTIBLE_HEART_SHAPED_COOKIE)
+ModRef:AddCallback(tbomCallbacks.TBOMC_PRE_ADD_COLLECTIBLE, Main.PreAddCollectible, modCollectibleType.COLLECTIBLE_HEART_SHAPED_COOKIE)
 
-return HeartShapedCookie
+return Main

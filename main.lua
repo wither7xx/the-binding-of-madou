@@ -14,6 +14,7 @@ tbom.modCard = {}
 
 tbom.modChallenge = {
 	CHALLENGE_METEOR_SHOWER = Isaac.GetChallengeIdByName("Meteor Shower"),
+	CHALLENGE_DESCENDING_INTO_PUYO_HELL = Isaac.GetChallengeIdByName("Descending Into Puyo Hell"),
 }
 
 tbom.modCollectibleType = {
@@ -78,6 +79,10 @@ tbom.modSoundEffect = {
 	SOUND_PUYO_7_CHAIN = Isaac.GetSoundIdByName("Puyo 7 Chain"),
 	SOUND_PUYO_BURST = Isaac.GetSoundIdByName("Puyo Burst"),
 	SOUND_GEL_GET = Isaac.GetSoundIdByName("Gel Get"),
+	SOUND_GEL_GET_ARCADE_1 = Isaac.GetSoundIdByName("Gel Get Arcade 1"),
+	SOUND_GEL_GET_ARCADE_2 = Isaac.GetSoundIdByName("Gel Get Arcade 2"),
+	SOUND_GEL_GET_ARCADE_3 = Isaac.GetSoundIdByName("Gel Get Arcade 3"),
+	SOUND_GREEN_GEL_HIT = Isaac.GetSoundIdByName("Green Gel Hit"),
 	SOUND_ET_SPACESHIP = Isaac.GetSoundIdByName("ET Spaceship"),
 }
 
@@ -213,9 +218,9 @@ for key, cfg in pairs(tbom.DefaultKeyConfig) do
 end
 
 tbom.TempData = {}
-tbom.TempData.PlayerData_Static = {}
-tbom.TempData.PlayerData_Static["UserNum"] = 0
-tbom.TempData.PlayerData_UserRegister = {}
+--tbom.TempData.PlayerData_Static = {}
+--tbom.TempData.PlayerData_Static["UserNum"] = 0
+--tbom.TempData.PlayerData_UserRegister = {}
 tbom.TempData.PlayerData = {}
 tbom.TempData.GameData = {}
 tbom.TempData.NPCData = {}
@@ -261,6 +266,11 @@ tbom.Spells = {
 	[SpellType.SPELL_DIACUTE] = include("scripts/features/spells/003_special/005_diacute"),
 	--瞄准-锁定型法术
 	[SpellType.SPELL_JUGEM] = include("scripts/features/spells/004_lockon/008_jugem"),
+}
+
+local modCard = tbom.modCard
+tbom.Cards = {
+	--命名格式：k[ID]_[名称]
 }
 
 local modEffectVariant = tbom.modEffectVariant
@@ -320,6 +330,7 @@ local modChallenge = tbom.modChallenge
 tbom.Challenges = {
 	--命名格式：ch[ID]_[名称]
 	[modChallenge.CHALLENGE_METEOR_SHOWER] = include("scripts/challenges/ch001_meteor_shower/ch001_meteor_shower_main"),
+	[modChallenge.CHALLENGE_DESCENDING_INTO_PUYO_HELL] = include("scripts/challenges/ch002_descending_into_puyo_hell/ch002_descending_into_puyo_hell_main"),
 }
 
 tbom.CompatibleMods = include("compatible mods/main")

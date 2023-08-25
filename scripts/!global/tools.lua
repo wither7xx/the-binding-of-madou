@@ -13,7 +13,7 @@ function Tools:GameDataInit(is_continued)
 		tbom.TempData.GameData = {}
 	end
 end
-ModRef:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, Tools.GameDataInit, 0)
+ModRef:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, Tools.GameDataInit)
 
 --NPC实体对象数据相关
 function Tools:NPCDataInit(is_continued)
@@ -21,7 +21,7 @@ function Tools:NPCDataInit(is_continued)
 		tbom.TempData.NPCData = {}
 	end
 end
-ModRef:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, Tools.NPCDataInit, 0)
+ModRef:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, Tools.NPCDataInit)
 
 function Tools:GetNPCData(entity)
 	local idx = tostring(GetPtrHash(entity))
@@ -35,7 +35,7 @@ function Tools:EffectDataInit(is_continued)
 		tbom.TempData.EffectData = {}
 	end
 end
-ModRef:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, Tools.EffectDataInit, 0)
+ModRef:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, Tools.EffectDataInit)
 
 function Tools:GetEffectData(effect)
 	local idx = tostring(GetPtrHash(effect))
@@ -46,29 +46,30 @@ end
 --存储角色实体对象数据时的困扰：
 --Isaac.GetPlayer()或Game().GetPlayer()不好使，角色数目减少时（如里拉移除长子权时/去掉饰品罗时）会导致混乱
 --EntityPlayer.ControllerIndex不好使，没法区分双子/里拉/里骨/稻草人/骨哥魂石/双子魂石等
---EntityPlayer.GetData()不好使，小退大退都会重置，存不住
+--EntityPlayer.GetData()不好使，小退大退都会重置[待验证]，存不住
 --GetPtrHash()不好使，退出重进时数值刷新，存不住
---EntityPlayer.InitSeed不好使，角色数目增多时（如使用表双子/里拉/饰品罗时）会导致混乱
+--EntityPlayer.InitSeed不好使，角色数目增多时（如使用表双子/里拉/饰品罗时）会导致混乱[待验证]
 --解决方法：EntityPlayer.GetCollectibleRNG()可能是存储并区分不同玩家的数据的唯一的好方案
 --新的困扰：因为RNG对象随时都在变化，所以直接用RNG对象当索引会很快干爆堆内存导致闪退，现在需要让索引恒定，如何实现？
 --解决方法：用RNG.GetSeed()取现有RNG对象的种子（整数），即可让索引在同一局内对不同角色唯一且恒定
 --新的困扰之二：现有Global.Tools.GetPlayerIndex()区分表双子/里拉/饰品罗，用它来区分用户(User)会导致错误；EntityPlayer.ControllerIndex不区分表双子/里拉/饰品罗，但也只能区分输入设备的序号，不能区分用户的序号（如仅有一名使用手柄的用户时会导致错误）；现在需要根据用户的序号决定HUD布局，如何实现？
 --解决方法：修改Global.Tools.GetPlayerIndex()，使之能够被手动设定是否区分表双子/里拉/饰品罗，同时引入TempData.PlayerData_UserRegister存储前者返回的索引对应的当前用户的序号、引入TempData.PlayerData_Static存储当前用户的数目（默认只增不减，且每局重置）
---新的困扰之三：现有Global.Tools.GetPlayerIndex()会在使用小红罐时将小红视为2P，如何解决？
+--新的困扰之三：现有Global.Tools.GetPlayerIndex()会在使用小红罐/骨哥魂石时将小红/骨哥视为2P，如何解决？
+--解决方法：修改取用户索引函数，使之能够识别副角色；弃用TempData.PlayerData_UserRegister与TempData.PlayerData_Static，改为每渲染帧遍历角色序列，动态地确定用户序号
 
 --初始化角色数据、用户寄存器与角色静态数据
 function Tools:PlayerDataInit(is_continued)
 	if not is_continued then
 		tbom.TempData.PlayerData = {}
-		tbom.TempData.PlayerData_UserRegister = {}
-		tbom.TempData.PlayerData_Static["UserNum"] = 0
+		--tbom.TempData.PlayerData_UserRegister = {}
+		--tbom.TempData.PlayerData_Static["UserNum"] = 0
 	end
 end
-ModRef:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, Tools.PlayerDataInit, 0)
+ModRef:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, Tools.PlayerDataInit)
 
 --取角色索引（ignore_pairing设为false）/用户索引（ignore_pairing设为true），返回整数
 function Tools:GetPlayerIndex(player, ignore_pairing)
-	local CollectibleRNG = player:GetCollectibleRNG(CollectibleType.COLLECTIBLE_SAD_ONION)
+	--local CollectibleRNG = player:GetCollectibleRNG(CollectibleType.COLLECTIBLE_SAD_ONION)
 	local collectible_type = CollectibleType.COLLECTIBLE_SAD_ONION
 	local player_type = player:GetPlayerType()
 	--换另一个道具的RNG以区分表双子/里拉的表形态和里形态
@@ -76,13 +77,39 @@ function Tools:GetPlayerIndex(player, ignore_pairing)
 		if player_type == PlayerType.PLAYER_LAZARUS2_B then
 			collectible_type = CollectibleType.COLLECTIBLE_INNER_EYE
 		end
+		local CollectibleRNG = player:GetCollectibleRNG(collectible_type)
+		return tostring(CollectibleRNG:GetSeed())
 	else
-		player = player:GetMainTwin()
+		if player.Parent and player.Parent:ToPlayer() then
+			player = player.Parent:ToPlayer()
+			--print(tostring(player:GetCollectibleRNG(collectible_type):GetSeed()))
+			--print(tostring(parent_player:GetCollectibleRNG(collectible_type)))
+			--if player:GetMainTwin() ~= nil then
+			--	player = player:GetMainTwin()
+			--end
+		end
+		--elseif player:GetMainTwin() ~= nil then
+			player = player:GetMainTwin()
+		--end
+		local CollectibleRNG = player:GetCollectibleRNG(collectible_type)
+		return tostring(CollectibleRNG:GetSeed())	--注：由于存储器会自动补全数组部分的缺失值，故为了避免浪费存储空间，作为键的种子的tostring()不可省略（即采用散列表而非数组）
 	end
-	local CollectibleRNG = player:GetCollectibleRNG(collectible_type)
-	return tostring(CollectibleRNG:GetSeed())
 end
-
+--[[
+function Tools:Charge_OnRender(player, offset)
+	local font = tbom.Fonts[Options.Language] or tbom.Fonts["en"]
+	local texts = {
+		[1] = "PlayerIdx: ".. tostring(Tools:GetPlayerIndex(player, false)),
+		[2] = "UserIdx: ".. tostring(Tools:GetPlayerIndex(player, true)),
+		[3] = "UserNumIdx: " .. tostring(Tools:GetUserIdx(player))
+	}
+	local pos = Tools:GetEntityRenderScreenPos(player)
+	for i = 1, #texts do
+		font:DrawStringUTF8(texts[i], pos.X - 200, pos.Y + 20 - 5 * #texts + i * 15, KColor(1, 1, 1, 0.8), 400, true)
+	end
+end
+ModRef:AddCallback(ModCallbacks.MC_POST_PLAYER_RENDER, Tools.Charge_OnRender)
+]]
 --取角色数据，如果出现新角色（如表双子/里拉/饰品罗），则将新加入的部分初始化
 function Tools:GetPlayerData(player)
 	local idx = Tools:GetPlayerIndex(player, false)
@@ -146,26 +173,65 @@ function Tools:GetPlayerPickupData(player, pickup_variant)
 end
 
 --检查用户寄存器，如果出现新用户（如由单人模式变为多人模式时），则将新加入的部分初始化
-function Tools:CheckUserNum(player)
-	local idx_user = Tools:GetPlayerIndex(player, true)
-	if tbom.TempData.PlayerData_UserRegister[idx_user] == nil then
-		tbom.TempData.PlayerData_UserRegister[idx_user] = tbom.TempData.PlayerData_Static["UserNum"]
-		tbom.TempData.PlayerData_Static["UserNum"] = tbom.TempData.PlayerData_Static["UserNum"] + 1
+--function Tools:CheckUserNum(player)
+--	local idx_user = Tools:GetPlayerIndex(player, true)
+--	if tbom.TempData.PlayerData_UserRegister[idx_user] == nil then
+--		tbom.TempData.PlayerData_UserRegister[idx_user] = tbom.TempData.PlayerData_Static["UserNum"]
+--		tbom.TempData.PlayerData_Static["UserNum"] = tbom.TempData.PlayerData_Static["UserNum"] + 1
+--	end
+--end
+--ModRef:AddPriorityCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, CallbackPriority.IMPORTANT, Tools.CheckUserNum, 0)
+
+local function GetUserIdxList()
+	local list = {}
+	local user_num = 0
+	local NumPlayers = Game():GetNumPlayers()
+	for p = 0, NumPlayers - 1 do
+		local player = Isaac.GetPlayer(p)
+		local idx_user = Tools:GetPlayerIndex(player, true)
+		if list[idx_user] == nil then
+			list[idx_user] = user_num
+			user_num = user_num + 1
+		end
 	end
+	return list, user_num
 end
-ModRef:AddPriorityCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, CallbackPriority.IMPORTANT, Tools.CheckUserNum, 0)
 
 --取当前用户数目，返回整数
 function Tools:GetUserNum()
-	return tbom.TempData.PlayerData_Static["UserNum"] or 1
+	--return tbom.TempData.PlayerData_Static["UserNum"] or 1
+	local _, num = GetUserIdxList()
+	return num
 end
-
+--[[
+function Tools:GetUserNum()
+	local max_idx = 0
+	local NumPlayers = Game():GetNumPlayers()
+	for p = 0, NumPlayers - 1 do
+		local player_p = Isaac.GetPlayer(p)
+	end
+	return max_idx
+end
+]]
 --由角色对象取用户索引，返回整数
 function Tools:GetUserIdx(player)
 	local idx_user = Tools:GetPlayerIndex(player, true)
-	return tbom.TempData.PlayerData_UserRegister[idx_user] or 0
+	--return tbom.TempData.PlayerData_UserRegister[idx_user] or 0
+	local list = GetUserIdxList()
+	return list[idx_user] or 0
 end
-
+--[[
+function Tools:GetUserIdx(player)
+	local NumPlayers = Game():GetNumPlayers()
+	for p = 0, NumPlayers - 1 do
+		local player_p = Isaac.GetPlayer(p)
+		if player_p.Index == player.Index then
+			return p + 1
+		end
+	end
+	return 0
+end
+]]
 --角色数据相关：其他函数
 function Tools:PlayerData_AddAttribute(player, key, starting_value)
 	local idx = Tools:GetPlayerIndex(player, false)
@@ -240,8 +306,8 @@ function Tools:GetNoPassiveSlotItem()
 	return ItemList
 end
 
---统计所有品质为quality的道具，返回数组（过滤隐藏道具和任务道具）
-function Tools:GetAllItem_ByQuality(quality)
+--统计所有品质为quality的道具，返回数组（过滤隐藏道具和任务道具；可选择是否过滤主动道具）
+function Tools:GetAllItem_ByQuality(quality, include_active)
 	local ItemList = {}
 	local item_config = Isaac.GetItemConfig()
 	for id = 1, item_config:GetCollectibles().Size - 1 do
@@ -249,7 +315,8 @@ function Tools:GetAllItem_ByQuality(quality)
 		if item_config_item then
 			if item_config_item.Quality == quality 
 			and (not item_config_item.Hidden) 
-			and (not item_config_item:HasTags(ItemConfig.TAG_QUEST)) then
+			and (not item_config_item:HasTags(ItemConfig.TAG_QUEST)) 
+			and (include_active or item_config_item.Type ~= ItemType.ITEM_ACTIVE) then
 				table.insert(ItemList, id)
 			end
 		end
@@ -307,8 +374,8 @@ function Tools:GetCollectibleNum_ByTags(player, tag)
 	return sum
 end
 
---随机生成/给予一个品质为quality的道具，返回道具（拾取物实体对象）（生成道具时）/nil（直接给予道具时）
-function Tools:RandomCollectible_ByQuality(player, quality, rng, give_item_directly)
+--随机生成/给予一个品质为quality的道具，返回整数（道具类型）
+function Tools:RandomCollectible_ByQuality(player, quality, rng, try_spawn)
 	local DefaultCollectibleType = {
 		[0] = CollectibleType.COLLECTIBLE_POOP,
 		[1] = CollectibleType.COLLECTIBLE_LUNCH,
@@ -316,7 +383,7 @@ function Tools:RandomCollectible_ByQuality(player, quality, rng, give_item_direc
 		[3] = CollectibleType.COLLECTIBLE_STEVEN,
 		[4] = CollectibleType.COLLECTIBLE_BRIMSTONE,
 	}
-	local ItemList_ByQuality = ItemList_ByQuality or Tools:GetAllItem_ByQuality(quality)
+	local ItemList_ByQuality = ItemList_ByQuality or Tools:GetAllItem_ByQuality(quality, include_active)
 	local size = #ItemList_ByQuality
 	local rand = Maths:RandomInt(size, rng, false, true)
 	local attempts = 0
@@ -326,15 +393,17 @@ function Tools:RandomCollectible_ByQuality(player, quality, rng, give_item_direc
 		attempts = attempts + 1
 		collectible_type = ItemList_ByQuality[rand]
 	end
-	if attempts == size then
-		collectible_type = DefaultCollectibleType[quality] or CollectibleType.COLLECTIBLE_BREAKFAST
+	if attempts >= size then
+		if (not include_active) and quality == 0 then
+			collectible_type = CollectibleType.COLLECTIBLE_SKATOLE
+		else
+			collectible_type = DefaultCollectibleType[quality] or CollectibleType.COLLECTIBLE_BREAKFAST
+		end
 	end
-	if give_item_directly then
-		player:AddCollectible(collectible_type)
-		return nil
-	else
-		return Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, collectible_type, Game():GetRoom():FindFreePickupSpawnPosition(player.Position, 0, true), Vector(0, 0), nil)
+	if try_spawn then
+		Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COLLECTIBLE, collectible_type, Game():GetRoom():FindFreePickupSpawnPosition(player.Position, 0, true), Vector(0, 0), nil)
 	end
+	return collectible_type
 end
 
 --播放某实体的特殊动画，返回“空白动画”（效果实体对象）
@@ -491,10 +560,14 @@ function Tools:CanTriggerEvent(entity, chance)
 	return false
 end
 
---判断entity在chance%的几率下是否能触发事件，返回逻辑
+--判断room_desc在chance%的几率下是否能触发事件，返回逻辑
 function Tools:RoomCanTriggerEvent(room_desc, chance)
-	if room_desc and room_desc.SpawnSeed then
-		return room_desc.SpawnSeed % 10000 < chance * 100
+	if not Game():IsGreedMode() then
+		if room_desc and room_desc.SpawnSeed then
+			return room_desc.SpawnSeed % 10000 < chance * 100
+		end
+	else
+		return Random() % 10000 < chance * 100
 	end
 	return false
 end
@@ -543,47 +616,6 @@ local function ChangeSprite(player, sprite_path)
 end
 
 --尝试为player添加初始外观costume（仅针对本Mod角色），引入default_sprite_path防止装扮丢失
---[[
-function Tools:TrySetStartingCostume(player, costume, default_sprite_path)	--//
-	--local data = Tools:GetPlayerData(player)
-	--local sprite = player:GetSprite()
-	--data.StartingSpritePath = sprite:GetFilename()
-	--print(data.StartingSpritePath)
-	local starting_sprite_path = "gfx/001.000_player.anm2"
-
-	if player.Variant == 0 then
-		local data = Tools:GetPlayerData(player)
-		if data.HasStartingCostume then
-			if player:IsCoopGhost() then
-				data.HasStartingCostume = false
-			end
-			if player:GetEffects():HasCollectibleEffect(CollectibleType.COLLECTIBLE_MEGA_MUSH) then
-				if not data.HadMegaMushEffect then
-					data.HadMegaMushEffect = true
-					--if data.StartingSpritePath then
-						print("ChangeSprite(player, data.StartingSpritePath)")
-						ChangeSprite(player, starting_sprite_path)
-					--end
-				end
-			else
-				if data.HadMegaMushEffect then
-					data.HadMegaMushEffect = false
-					ChangeSprite(player, default_sprite_path)
-				end
-			end
-		elseif not player:IsCoopGhost() then
-			--local sprite = player:GetSprite()
-			--data.StartingSpritePath = sprite:GetFilename()
-			--print(data.StartingSpritePath)
-			Tools:SetStartingCostume(player, costume)
-			ChangeSprite(player, default_sprite_path)
-			data.HasStartingCostume = true
-		end
-		ChangeSprite(player, default_sprite_path)
-	end
-end
-]]
-
 function Tools:TrySetStartingCostume(player, costume, starting_sprite_path)
 	local default_sprite_path = "gfx/001.000_player.anm2"
 	local used_path = starting_sprite_path
@@ -592,95 +624,98 @@ function Tools:TrySetStartingCostume(player, costume, starting_sprite_path)
 		local data = Tools:GetPlayerData(player)
 		if data.StartingCostumeData == nil then
 			data.StartingCostumeData = {
+				StartingSpritePath = starting_sprite_path,
 				UsingDefaultCostume = true,
 			}
 			Tools:SetStartingCostume(player, costume)
-			--ChangeSprite(player, starting_sprite_path)
 		end
 		if player:GetEffects():HasCollectibleEffect(CollectibleType.COLLECTIBLE_MEGA_MUSH) and (not player:HasCurseMistEffect()) then
 			should_use_default_costume = true
 			used_path = default_sprite_path
 		end
-		--if player:HasCurseMistEffect() then
-		--	should_use_default_costume = false
-		--end
 		if Common:Xor(data.StartingCostumeData.UsingDefaultCostume, should_use_default_costume) then
-			--if player:HasCurseMistEffect() then
-			--	if not data.StartingCostumeData.HadCurseMistEffect then
-			--		data.StartingCostumeData.HadCurseMistEffect = true
-			--		ChangeSprite(player, starting_sprite_path)
-			--	end
-			--else
-				ChangeSprite(player, used_path)
-				--used_path = default_sprite_path
-				data.StartingCostumeData.UsingDefaultCostume = should_use_default_costume
-			--end
+			ChangeSprite(player, used_path)
+			data.StartingCostumeData.UsingDefaultCostume = should_use_default_costume
 		end
-		--if player:HasCurseMistEffect() then
-		--	if not data.StartingCostumeData.HadCurseMistEffect then
-		--		data.StartingCostumeData.HadCurseMistEffect = true
-		--		ChangeSprite(player, starting_sprite_path)
-		--	end
-		--end
 	end
 end
---[[
-function Tools:TrySetStartingCostume(player, costume, default_sprite_path)
-	if player.Variant == 0 then
-		local data = Tools:GetPlayerData(player)
-		--print("data.HasStartingCostume: " .. tostring(data.HasStartingCostume))
-		if data.HasStartingCostume then
-			if player:IsCoopGhost() then
-				data.HasStartingCostume = false
+
+function Tools:StartingCostumeDataInit(is_continued)
+	if is_continued then
+		local NumPlayers = Game():GetNumPlayers()
+		for p = 0, NumPlayers - 1 do
+			local player = Game():GetPlayer(p)
+			local data = Tools:GetPlayerData(player)
+			if data.StartingCostumeData and data.StartingCostumeData.StartingSpritePath then
+				ChangeSprite(player, data.StartingCostumeData.StartingSpritePath)
 			end
-			if player:HasCurseMistEffect() then
-				if not data.HadCurseMistEffect then
-					data.HadCurseMistEffect = true
-					ChangeSprite(player, default_sprite_path)
-				end
-			end
-		elseif not player:IsCoopGhost() then
-			Tools:SetStartingCostume(player, costume)
-			data.HasStartingCostume = true
 		end
 	end
 end
-]]
---[[
-function Tools:StartingCostume_OnInit(player)
-	if player.Variant == 0 then
-		local data = Tools:GetPlayerData(player)
-		data.HasStartingCostume = false
-		data.HadMegaMushEffect = false
-	end
-end
-ModRef:AddCallback(ModCallbacks.MC_POST_PLAYER_INIT, Tools.StartingCostume_OnInit, 0)
-]]
---[[
-function Tools:StartingCostume_PostNewRoom()
-	local NumPlayers = Game():GetNumPlayers()
-	for p = 0, NumPlayers - 1 do
-		local player = Isaac.GetPlayer(p)
-		local data = Tools:GetPlayerData(player)
-		if data.HasStartingCostume then
-			data.HasStartingCostume = false
-			--print("new room")
+ModRef:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, Tools.StartingCostumeDataInit)
+
+--小以扫数据相关
+function Tools:TryCheckEsauJrData(func)		--建议与ModCallbacks.MC_POST_UPDATE搭配使用
+	local should_check = Tools:GameData_GetAttribute("ShouldCheckEsauJrData")
+	if should_check then
+		local NumPlayers = Game():GetNumPlayers()
+		for p = 0, NumPlayers - 1 do
+			local player = Isaac.GetPlayer(p)
+			func(player)
 		end
+		Tools:GameData_ClearAttribute("ShouldCheckEsauJrData")
 	end
 end
-ModRef:AddPriorityCallback(ModCallbacks.MC_POST_NEW_ROOM, CallbackPriority.LATE, Tools.StartingCostume_PostNewRoom)
-]]
+
+function Tools:EsauJrData_OnUseItem(collectible_type, rng, player, use_flags, active_slot, custom_var_data)
+	Tools:GameData_SetAttribute("ShouldCheckEsauJrData", true)
+end
+ModRef:AddCallback(ModCallbacks.MC_USE_ITEM, Tools.EsauJrData_OnUseItem, CollectibleType.COLLECTIBLE_ESAU_JR)
 
 --取room_desc对应房间维度，返回整数
 function Tools:GetDimByRoomDesc(room_desc)
 	local level = Game():GetLevel()
 	for dim = 0, 2 do
-		local room_desc_in_dim = level:GetRoomByIdx(desc.SafeGridIndex, dim)
+		local room_desc_in_dim = level:GetRoomByIdx(room_desc.SafeGridIndex, dim)
 		if GetPtrHash(room_desc) == GetPtrHash(room_desc_in_dim) then
 			return dim
 		end
 	end
 	return -1
+end
+
+--单层随机房间索引，返回整数（每层重置）
+function Tools:RandomRoomIdx(include_starting_room, room_type_list, room_shape_list)
+	local game = Game()
+	local level = game:GetLevel()
+	local room_desc_list = level:GetRooms()
+	local starting_room_idx = level:GetStartingRoomIndex()
+	local uses_all_room_type = ((room_type_list == nil) or (#room_type_list == 0))
+	local uees_all_room_shape = ((room_shape_list == nil) or (#room_shape_list == 0))
+	local has_usable_room = false
+	local usable_room_idx_list = {}
+	for idx = 1, room_desc_list.Size do
+		local room_desc = room_desc_list:Get(idx)
+		if room_desc and room_desc.GridIndex >= 0 and Tools:GetDimByRoomDesc(room_desc) == 0 then
+			local room_cfg_room = room_desc.Data
+			local room_type = room_cfg_room.Type
+			local room_shape = room_cfg_room.Shape
+			if (uses_all_room_type or Common:IsInTable(room_type, room_type_list)) and (uees_all_room_shape or Common:IsInTable(room_shape, room_shape_list)) then
+				if room_desc.GridIndex ~= starting_room_idx or include_starting_room then
+					table.insert(usable_room_idx_list, room_desc.SafeGridIndex)
+					has_usable_room = true
+				end
+			end
+		end
+	end
+	if not has_usable_room then
+		return -1
+	end
+	local level_stage = level:GetStage()
+	local stage_seed = game:GetSeeds():GetStageSeed(level_stage)
+	local target_room_idx = (stage_seed % #usable_room_idx_list) + 1
+	--print(target_room_idx)
+	return usable_room_idx_list[target_room_idx]
 end
 
 --取角色射击方向，返回矢量
@@ -944,6 +979,14 @@ do
 		end
 	end
 	ModRef:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, Tools.TapAndHold_OnUpdate)
+
+	function Tools:TapAndHold_OnTakeDamage(took_dmg, dmg_amount, dmg_flags, dmg_source, dmg_cd_frames)
+		local player = took_dmg:ToPlayer()
+		if player then
+			Tools:TapAndHold_SetInitStateForcibly_Shooting(player, true)
+		end
+	end
+	ModRef:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, Tools.TapAndHold_OnTakeDamage)
 end
 
 --角色道具相关：初始化数据
@@ -997,7 +1040,7 @@ end
 ModRef:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, Tools.AddCollectible_RunCallback)
 
 --无敌时间相关
-local function Immunity_GetImmunityData()
+local function Immunity_GetImmunityData(player)
 	local data = Tools:GetPlayerData(player)
 	data.ImmunityData = data.ImmunityData or {
 		DamageCooldown = 0,
@@ -1007,29 +1050,29 @@ local function Immunity_GetImmunityData()
 end
 
 function Tools:Immunity_GetDamageCooldown(player)
-	local data = Immunity_GetImmunityData()
+	local data = Immunity_GetImmunityData(player)
 	return data.DamageCooldown or 0
 end
 
 function Tools:Immunity_SetDamageCooldown(player, value)
-	local data = Immunity_GetImmunityData()
+	local data = Immunity_GetImmunityData(player)
 	data.DamageCooldown = math.max(0, value)
 end
 
 function Tools:Immunity_ModifyDamageCooldown(player, amount)
-	local data = Immunity_GetImmunityData()
+	local data = Immunity_GetImmunityData(player)
 	if data.DamageCooldown then
 		data.DamageCooldown = math.max(0, data.DamageCooldown + amount)
 	end
 end
 
 function Tools:Immunity_ShouldBlink(player)
-	local data = Immunity_GetImmunityData()
+	local data = Immunity_GetImmunityData(player)
 	return data.ShouldBlink
 end
 
 function Tools:Immunity_SetIfShouldBlink(player, value)
-	local data = Immunity_GetImmunityData()
+	local data = Immunity_GetImmunityData(player)
 	data.ShouldBlink = value
 end
 

@@ -110,9 +110,15 @@ Misc fixes: Fixed an error that the door of Boss Rush Room won't close after tri
 MOD兼容：现已兼容Mod Config Menu：玩家可在配置菜单中修改角色的按键设置。
 Mod compatibility: Now has compatibility with Mod Config Menu: You can modify the key config of players in the config menu.
 
-（仅群内特供版）Mod兼容：现已兼容Martha：
-·角色【马大】的希望点数可以充当魔导力使用；
+◇2023/8/26  Beta v0.1.2
+“噗哟从天而降！”
+"Puyo is falling from the sky!"
+
+Mod兼容：现已兼容Martha：
+·角色【马大】的希望点数可以充当魔导力使用。
 ·角色【马大】使用道具【蓝色魔导书】时，有25%几率触发法术【天界射线】。
-(SPECIAL EDITION ONLY!!) Mod compatibility: Now has compatibility with Martha: 
+·角色【马大】的冲击波可以正常触发饰品【另一张游戏卡带】的效果。
+·敌怪【紫噗哟】和【蓝噗哟】免疫卡牌【克里姆林流感】的冰冻效果。
+Mod compatibility: Now has compatibility with Martha: 
 ·The HOPE point of Martha can be used as mp.
 ·The player has 25% chance to trigger Heaven Ray when uses the Blue Grimoire as Martha.

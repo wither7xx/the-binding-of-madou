@@ -40,7 +40,7 @@ function Exp:PostUpdate(effect)
 
 		local sprite = effect:GetSprite()
 		if effect.State == ExpState.STATE_IDLE then
-			if effect.Target and effect.Target:Exists() then
+			if effect.Target and effect.Target:Exists() and (not effect.Target:IsDead()) then
 				sprite:Play("Move")
 
 				local velocity = effect.Velocity
@@ -57,6 +57,9 @@ function Exp:PostUpdate(effect)
 			else
 				sprite:Play("Idle")
 				effect:MultiplyFriction(0.9)
+				if effect.Velocity:Length() < 0.5 then
+					effect.State = ExpState.STATE_COLLECTED
+				end
 			end
 		else
 			sprite:Play("Collect")

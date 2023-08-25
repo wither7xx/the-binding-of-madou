@@ -17,22 +17,23 @@ local function GetEffectivePlayerData()
 	return data
 end
 
-local function GetEffectiveUserRegister()
-	local data = {}
-	local NumPlayers = Game():GetNumPlayers()
-	for p = 0, NumPlayers - 1 do
-		local player = Isaac.GetPlayer(p)
-		local idx_user = Tools:GetPlayerIndex(player, true)
-		if tbom.TempData.PlayerData_UserRegister[idx_user] then
-			data[idx_user] = tbom.TempData.PlayerData_UserRegister[idx_user]
-		end
-	end
-	return data
-end
+--local function GetEffectiveUserRegister()
+--	local data = {}
+--	local NumPlayers = Game():GetNumPlayers()
+--	for p = 0, NumPlayers - 1 do
+--		local player = Isaac.GetPlayer(p)
+--		local idx_user = Tools:GetPlayerIndex(player, true)
+--		if tbom.TempData.PlayerData_UserRegister[idx_user] then
+--			data[idx_user] = tbom.TempData.PlayerData_UserRegister[idx_user]
+--		end
+--	end
+--	return data
+--end
 
-local function GetPlayerData_Static()
-	return tbom.TempData.PlayerData_Static
-end
+--local function GetPlayerData_Static()
+--	return tbom.TempData.PlayerData_Static
+--end
+
 local function GetGameData()
 	return tbom.TempData.GameData
 end
@@ -46,8 +47,8 @@ local json = require("json")
 function ModData:SaveModData()
 	local SavingData = {
 		PlayerData = GetEffectivePlayerData(),
-		PlayerData_UserRegister = GetEffectiveUserRegister(),
-		PlayerData_Static = GetPlayerData_Static(),
+		--PlayerData_UserRegister = GetEffectiveUserRegister(),
+		--PlayerData_Static = GetPlayerData_Static(),
 		GameData = GetGameData(),
 		KeyConfig = GetKeyConfig(),
 	}
@@ -62,9 +63,10 @@ function ModData:LoadModData(is_continued)
 		if is_continued then
 			if LoadingData then
 				tbom.TempData.PlayerData = LoadingData.PlayerData or {}
-				tbom.TempData.PlayerData_UserRegister = LoadingData.PlayerData_UserRegister or {}
-				tbom.TempData.PlayerData_Static = LoadingData.PlayerData_Static or {}
+				--tbom.TempData.PlayerData_UserRegister = LoadingData.PlayerData_UserRegister or {}
+				--tbom.TempData.PlayerData_Static = LoadingData.PlayerData_Static or {}
 				tbom.TempData.GameData = LoadingData.GameData or {}
+				tbom.KeyConfig = LoadingData.KeyConfig or tbom.DefaultKeyConfig
 			end
 		end
 	end

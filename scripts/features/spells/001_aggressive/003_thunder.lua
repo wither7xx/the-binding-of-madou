@@ -23,16 +23,16 @@ function Thunder:CanShootConfusionTears(player)
 	local spell_ID = SpellType.SPELL_THUNDER
 	local Reberu = Magic:GetSpellReberu(player, spell_ID)
 	local TearFlagSeed = (Magic:BaseSpell_GetAttribute(player, MagicType.AGGRESSIVE, "TearFlagSeed") or 100)
-	--return Reberu >= 3 and TearFlagSeed < 50
-	return false
+	return Reberu >= 3 and TearFlagSeed < 50
+	--return false
 end
 
 function Thunder:CanShootFrozenTears(player)
 	local spell_ID = SpellType.SPELL_THUNDER
 	local Reberu = Magic:GetSpellReberu(player, spell_ID)
 	local TearFlagSeed = (Magic:BaseSpell_GetAttribute(player, MagicType.AGGRESSIVE, "TearFlagSeed") or 100)
-	--return Reberu >= 4 and TearFlagSeed % 50 < 25
-	return false
+	return Reberu >= 4 and TearFlagSeed % 50 < 25
+	--return false
 end
 
 function Thunder:OnEnable(spell_ID, rng, player, use_flag)
@@ -149,22 +149,10 @@ function Thunder:PreBurstCharge(spell_ID, reberu, rng, player)
 			local ShockingTimeout = 30 * 2 + 20
 			Magic:Spell_SetAttribute(player, spell_ID, "ShockingTimeout", ShockingTimeout)
 		end
-	--[[
-		for _, entity in pairs(Isaac.GetRoomEntities()) do
-			if entity:IsActiveEnemy() and entity:IsVulnerableEnemy() then
-				--entity:TakeDamage(50, DamageFlag.DAMAGE_CLONES, EntityRef(player), 0)
-				entity:TakeDamage(50, 0, EntityRef(player), 0)
-			end
-			if entity.Type == EntityType.ENTITY_PROJECTILE then
-				entity:Die()
-			end
-		end
-	]]
 		SFXManager():Play(modSoundEffect.SOUND_THUNDER_BURSTING)
-		--Game():GetHUD():SetVisible(false)
 	end
 end
-ModRef:AddCallback(tbomCallbacks.TBOMC_PRE_BURST_ATK_CHARGE, Thunder.PreBurstCharge, SpellType.SPELL_THUNDER)
+--ModRef:AddCallback(tbomCallbacks.TBOMC_PRE_BURST_ATK_CHARGE, Thunder.PreBurstCharge, SpellType.SPELL_THUNDER)
 
 local thunder_bursting = Sprite()
 thunder_bursting:Load("gfx/tbom/thunder_bursting.anm2")

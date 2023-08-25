@@ -1,3 +1,5 @@
 <costumes anm2root="gfx/characters/">
 	<costume anm2path="character_arle_hair.anm2" type="none" priority="99" />
+
+	<costume anm2path="compatible mods/martha/costume_degeneracy_arle.anm2" type="none" priority="2" />
 </costumes>

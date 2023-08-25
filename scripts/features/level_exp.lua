@@ -630,7 +630,7 @@ function LevelExp:ExpBarAreaUpdate(player)
 	local AnchorY = 20
 	local BarOffset = Vector(0, 0)
 	local UserIdx = Tools:GetUserIdx(player)
-	if UserIdx >= 1 then
+	if UserIdx >= 1 and data.MPIconArea then
 		if UserIdx >= 2 then
 			AnchorY = (data.MPIconArea.Y or 0) - 4
 		else

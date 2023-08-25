@@ -688,11 +688,13 @@ Questions[6] = {
 				"<center>其中{num} x = ".. argv[1] .. ", {num_end}则{num} |D| = ?{num_end}",
 			},
 			["en"] = {
-				"<center>Consider the following plane region:",
-				"<center>{num}D = {{(x, y) | 0 <= x <= " .. argv[1] .. ", {root} {root_end}  (" .. argv[1] .. "x - x{sps}2{sps_end}) <= y <= {root} {root_end}  (" .. Maths:Fix_Round(argv[1] ^ 2) .. " - x{sps}2{sps_end})}",
-				"<center>Find {num}{integ}  {integ_end}{sbs}D{sbs_end}(x{sps}2{sps_end} + y{sps}2{sps_end})d{num_end}{cjk}σ{cjk_end} .",
-				"<center>(Please use {cjk}π{cjk_end}{num} = 3.14, {num_end}{num_end}",
-				"<center>and round the result to two decimal places.)"
+				"<center>Consider the following matrix:",
+				"<center:10>{num}    1-x   x    0    0    0  {num_end}",
+				"<center:10>{num}   -1   1-x   x    0    0  {num_end}",
+				"<center>{num} D =     0  -1   1-x   x    0  {num_end}",
+				"<center:10>{num}     0    0  -1   1-x   x  {num_end}",
+				"<center:10>{num}     0    0    0  -1   1-x {num_end}",
+				"<center>If{num} x = ".. argv[1] .. ", {num_end}what is the value of{num} |D|{num_end} ?",
 			},
 		}	
 		return texts[lang_fixed] or texts["en"]

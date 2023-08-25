@@ -42,7 +42,7 @@ function Aggressive:Charge_OnInit(spell_ID, player)
 		}
 	end
 end
---ModRef:AddCallback(tbomCallbacks.TBOMC_POST_SPELL_INIT_BASE, Aggressive.Charge_OnInit, MagicType.AGGRESSIVE)
+--ModRef:AddCallback(tbomCallbacks.TBOMC_POST_SPELL_INIT_BASE, Aggressive.Charge_OnInit, MagicType.AGGRESSIVE)		--已弃用
 
 function Aggressive:Charge_GetState(player)
 	local ChargeData = GetChargeData(player)
@@ -315,11 +315,15 @@ function Aggressive:PostUpdate(spell_ID, player)
 				sprite:Play("Idle")
 			end
 		else
-			local MagicCircle_new = Isaac.Spawn(EntityType.ENTITY_EFFECT, modEffectVariant.MAGIC_CIRCLE, 0, player.Position, Vector(0,0), player):ToEffect()
+			local MagicCircle_new = Isaac.Spawn(EntityType.ENTITY_EFFECT, modEffectVariant.MAGIC_CIRCLE, 0, player.Position, Vector(0, 0), player):ToEffect()
+			--print("NEW CIRCLE SPAWNED!!")
 			MagicCircle_new.Parent = player
 			MagicCircle_new.SpriteScale = Vector(0.5, 0.5)
 			MagicCircle_new.Position = player.Position
 			Magic:BaseSpell_SetAttribute(player, magic_type, "MagicCircle", MagicCircle_new)
+			--print(tostring(MagicCircle_new == nil))
+			--print(tostring(Magic:BaseSpell_GetAttribute(player, magic_type, "MagicCircle") == nil))
+			--print("------")
 		end
 	elseif MagicCircle and MagicCircle:Exists() then
 		local sprite = MagicCircle:GetSprite()
@@ -335,11 +339,13 @@ function Aggressive:PostNewRoom()
 		local player = Game():GetPlayer(p)
 		Magic:BaseSpell_SetAttribute(player, magic_type, "UsedInCurrentRoom", false)
 
+		--[[
 		local state = Aggressive:Charge_GetState(player)
 		if (state == ChargeState.CHARGING or state == ChargeState.CHARGED) and player:IsExtraAnimationFinished() then
 			--player:AnimateCollectible(modCollectibleType.COLLECTIBLE_BLUE_GRIMOIRE, "LiftItem")
 			TryUdatePlayerAnim(player)
 		end
+		]]
 	end
 end
 ModRef:AddCallback(ModCallbacks.MC_POST_NEW_ROOM, Aggressive.PostNewRoom)
@@ -390,7 +396,7 @@ function Aggressive:Charge_Holding(shoot_dir, player)	--//问题：按着蓄力键进新房
 		end
 	end
 end
-ModRef:AddCallback(tbomCallbacks.TBOMC_TAP_AND_HOLD_SHOOTING, Aggressive.Charge_Holding, 1)
+--ModRef:AddCallback(tbomCallbacks.TBOMC_TAP_AND_HOLD_SHOOTING, Aggressive.Charge_Holding, 1)
 
 function Aggressive:Charge_Releasing(shoot_dir, player)
 	local CurrentSpellID = Magic:GetCurrentSpellId(player)
@@ -410,7 +416,7 @@ function Aggressive:Charge_Releasing(shoot_dir, player)
 	end
 	
 end
-ModRef:AddCallback(tbomCallbacks.TBOMC_TAP_AND_HOLD_SHOOTING, Aggressive.Charge_Releasing, 2)
+--ModRef:AddCallback(tbomCallbacks.TBOMC_TAP_AND_HOLD_SHOOTING, Aggressive.Charge_Releasing, 2)
 
 function Aggressive:Charge_OnUpdate(spell_ID, player)
 	local state = Aggressive:Charge_GetState(player)
@@ -474,15 +480,7 @@ function Aggressive:Charge_OnUpdate(spell_ID, player)
 		end
 	end
 end
-ModRef:AddCallback(tbomCallbacks.TBOMC_SPELL_UPDATE_BASE, Aggressive.Charge_OnUpdate, MagicType.AGGRESSIVE)
-
-function Aggressive:OnTakeDamage(took_dmg, dmg_amount, dmg_flags, dmg_source, dmg_cd_frames)
-	local player = took_dmg:ToPlayer()
-	if player then
-		Tools:TapAndHold_SetInitStateForcibly_Shooting(player, true)
-	end
-end
-ModRef:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, Aggressive.OnTakeDamage)
+--ModRef:AddCallback(tbomCallbacks.TBOMC_SPELL_UPDATE_BASE, Aggressive.Charge_OnUpdate, MagicType.AGGRESSIVE)
 
 function Aggressive:Charge_OnRender(player, offset)
 	local game = Game()
@@ -540,6 +538,6 @@ function Aggressive:Charge_OnRender(player, offset)
 		]]
 	end
 end
-ModRef:AddCallback(ModCallbacks.MC_POST_PLAYER_RENDER, Aggressive.Charge_OnRender)
+--ModRef:AddCallback(ModCallbacks.MC_POST_PLAYER_RENDER, Aggressive.Charge_OnRender)
 
 return Aggressive
